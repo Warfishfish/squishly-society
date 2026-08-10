@@ -708,7 +708,7 @@ const PRODUCTS = [
   {
     id: "sq-063",
     name: "Rainbow Prism Cube",
-    category: "fidget",
+    category: "prism",
     price: 21.95,
     supplierCost: 7.40,
     image: "https://ae-pic-a1.aliexpress-media.com/kf/Sc8944e13c9ee46b18de226cad1983ac5H.jpg_480x480q75.jpg_.avif",
@@ -725,5 +725,6 @@ const CATEGORY_LABELS = {
   animal: "Animals",
   food: "Food-shaped",
   fidget: "Fidget",
-  keychain: "Keychain"
+  keychain: "Keychain",
+  prism: "Prism Cubes"
 };

@@ -14,7 +14,7 @@ const sortEl = document.getElementById("sort-select");
 /* ---------- Category tiles ---------- */
 const TILE_EMOJI = {
   mochi: "🍡", jumbo: "🐣", animal: "🐱",
-  food: "🍞", fidget: "🟣", keychain: "🔑"
+  food: "🍞", fidget: "🟣", keychain: "🔑", prism: "🔷"
 };
 
 function renderTiles() {
