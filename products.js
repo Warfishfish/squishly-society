@@ -1,16 +1,26 @@
 /* ===========================================================
-   Squishy Society — product catalogue (63 products)
+   Squishy Society — product catalogue (64 products)
    ---------------------------------------------------------
    sq-001 to sq-012 : original picks, photos stored locally in /images
    sq-013 to sq-062 : added later, photos hot-linked from AliExpress's CDN
+   sq-063 onward    : also carry `sourceUrl` + `shippingCost` — see
+                      product-tracker.xlsx for the master pricing sheet.
 
-   All entries are REAL AliExpress listings, filtered to 500+ units sold
-   and 4.0+ rating, with licensed/branded character items excluded
+   All entries are REAL AliExpress listings. sq-001 to sq-062 were filtered
+   to 500+ units sold and 4.0+ rating; the prism cubes (sq-063+) are a
+   lower-volume niche so that bar was relaxed for them specifically.
+   Licensed/branded character items are excluded throughout
    (no Pokemon, Sanrio, Disney, Ghibli, NeeDoh etc) to avoid IP risk.
 
    IMPORTANT NOTES
    - `supplierCost` is the AliExpress price in AUD at time of research.
      AliExpress pricing moves constantly — re-check before committing.
+   - `shippingCost` (sq-063+) is what that listing charged at time of
+     research, separate from supplierCost. Older entries don't have this
+     field recorded — see product-tracker.xlsx.
+   - `sourceUrl` (sq-063+) links to the exact AliExpress listing this was
+     sourced from. Update this directly in product-tracker.xlsx if you
+     switch suppliers — see that file's Instructions tab.
    - `sourceRating` / `sourceOrders` were accurate at time of research
      and are for YOUR reference only; they are shown on the product
      popup but you may want to remove that once you have your own reviews.
@@ -711,10 +721,26 @@ const PRODUCTS = [
     category: "prism",
     price: 21.95,
     supplierCost: 7.40,
+    shippingCost: 3.12,
+    sourceUrl: "https://www.aliexpress.com/item/1005005399618112.html",
     image: "https://ae-pic-a1.aliexpress-media.com/kf/Sc8944e13c9ee46b18de226cad1983ac5H.jpg_480x480q75.jpg_.avif",
     sourceRating: 4.4,
     sourceOrders: "600+",
     description: "A solid crystal cube that splits light into shifting rainbow colour as you turn it in your hand — more hypnotic than squishy, for anyone who likes a visual fidget as much as a tactile one. Comes in four sizes."
+  },
+
+  {
+    id: "sq-064",
+    name: "Studio Light Prism Cube",
+    category: "prism",
+    price: 27.95,
+    supplierCost: 11.86,
+    shippingCost: 0,
+    sourceUrl: "https://www.aliexpress.com/item/1005009157109845.html",
+    image: "https://ae-pic-a1.aliexpress-media.com/kf/Se72f4cb26aeb41a7bf95d4171701f91fE.jpg_480x480q75.jpg_.avif",
+    sourceRating: 4.4,
+    sourceOrders: "700+",
+    description: "A hexahedral CMY crystal cube built for photographers chasing prism-flare shots, but just as fun to fidget with on a desk. Free shipping on this listing. Comes in two sizes."
   }
 ];
 
