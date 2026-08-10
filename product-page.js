@@ -110,13 +110,21 @@ function renderProductPage() {
         ${sup ? `
         <div class="supplier-box">
           <div class="supplier-head">
-            <strong>Supplier listing reviews</strong>
+            <strong>What buyers are saying</strong>
             <span class="supplier-score">${starRow(sup.rating)} ${sup.rating.toFixed(1)}</span>
           </div>
           <p class="supplier-sub">
-            ${sup.reviews.toLocaleString()} buyer reviews on the <em>source listing</em> we order this product from.
-            These are not Squishy Society customer reviews — we're a new store and haven't collected our own yet.
+            ${sup.reviews.toLocaleString()} AliExpress reviews from the <em>source listing</em> we order this product from —
+            not yet our own. We're a new store and haven't collected our own customer reviews here.
           </p>
+          ${sup.quotes && sup.quotes.length ? `
+          <div class="supplier-quotes">
+            ${sup.quotes.map(q => `
+              <div class="squote">
+                <p>"${q.text.replace(/"/g, "&quot;")}"</p>
+                <span class="squote-meta">${q.author ? q.author + " · " : ""}AliExpress buyer${q.variant ? " · " + q.variant : ""}</span>
+              </div>`).join("")}
+          </div>` : ""}
           ${sup.tags && sup.tags.length ? `
           <div class="supplier-tags">
             ${sup.tags.map(t => `<span class="stag">${t}</span>`).join("")}

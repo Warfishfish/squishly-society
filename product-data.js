@@ -1089,6 +1089,18 @@ const PRODUCT_DATA = {
     "excellent build quality",
     "perfect",
     "recommended"
+   ],
+   "quotes": [
+    {
+     "text": "It's just like in the photo, everything is perfect and it arrived ahead of schedule.",
+     "author": null,
+     "variant": "1pc"
+    },
+    {
+     "text": "Great, will repurchase — recommended.",
+     "author": null,
+     "variant": "Durian"
+    }
    ]
   },
   "options": {
@@ -1268,6 +1280,23 @@ const PRODUCT_DATA = {
     "slow rising",
     "soft to touch",
     "super slow rising"
+   ],
+   "quotes": [
+    {
+     "text": "I freaking love this squishy — it's slow rising, the packaging is cute, and it actually smells like bread.",
+     "author": "g***r",
+     "variant": "cheese cake"
+    },
+    {
+     "text": "It's bouncy with some squishy areas and the feeling is great. If the delivery is this fast, it's super fast!",
+     "author": "K***r",
+     "variant": "cheese cake"
+    },
+    {
+     "text": "Smells like buttered bread, very slow rising, very soft, no stickiness. I really like it.",
+     "author": "U***r",
+     "variant": "cheese cake"
+    }
    ]
   },
   "options": {
@@ -1281,8 +1310,48 @@ const PRODUCT_DATA = {
    "https://ae-pic-a1.aliexpress-media.com/kf/Sb4f16f5bab004dec9ad9f121d95b63f5p.jpg",
    "https://ae-pic-a1.aliexpress-media.com/kf/S4570ae5a9b6d4e4e9169401ab32409b0B.jpg"
   ]
+ },
+ "sq-063": {
+  "supplier": {
+   "rating": 4.4,
+   "reviews": 72,
+   "tags": [
+    "solid glass",
+    "excellent quality",
+    "does not mix colors",
+    "exactly as described",
+    "well protected packaging",
+    "looks great"
+   ],
+   "quotes": [
+    {
+     "text": "Perfect thing on the work table! Made of glass, not plastic — that's a second one I've ordered.",
+     "author": "R***a",
+     "variant": "30mm"
+    },
+    {
+     "text": "Solid glass and very much like the image. It's like a CMY/RGB cube, not a prism — recommended if that's what you're after.",
+     "author": "a***r",
+     "variant": "60mm"
+    }
+   ]
+  },
+  "options": {
+   "label": "Size",
+   "values": [
+    "30mm",
+    "40mm",
+    "50mm",
+    "60mm"
+   ]
+  },
+  "gallery": [
+   "https://ae-pic-a1.aliexpress-media.com/kf/Sc8944e13c9ee46b18de226cad1983ac5H.jpg_480x480q75.jpg_.avif",
+   "https://ae-pic-a1.aliexpress-media.com/kf/S108b6ca87a2046de9084650d144d013cN.jpg_480x480q75.jpg_.avif",
+   "https://ae-pic-a1.aliexpress-media.com/kf/S23661bad086c4211b19864843039b99dA.jpg_480x480q75.jpg_.avif"
+  ]
  }
 };
 
 const MYSTERY_IDS = ["sq-023", "sq-026", "sq-031", "sq-036", "sq-037", "sq-043", "sq-044", "sq-046", "sq-050"];
-const NEW_DROP_IDS = ["sq-055", "sq-056", "sq-057", "sq-058", "sq-059", "sq-060", "sq-061", "sq-062"];
+const NEW_DROP_IDS = ["sq-056", "sq-057", "sq-058", "sq-059", "sq-060", "sq-061", "sq-062", "sq-063"];

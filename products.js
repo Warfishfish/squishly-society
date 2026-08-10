@@ -1,5 +1,5 @@
 /* ===========================================================
-   Squishy Society — product catalogue (62 products)
+   Squishy Society — product catalogue (63 products)
    ---------------------------------------------------------
    sq-001 to sq-012 : original picks, photos stored locally in /images
    sq-013 to sq-062 : added later, photos hot-linked from AliExpress's CDN
@@ -703,6 +703,18 @@ const PRODUCTS = [
     sourceRating: 4.7,
     sourceOrders: "2,000+",
     description: "Grilled rice cake with a browned, textured surface and a slow rise."
+  },
+
+  {
+    id: "sq-063",
+    name: "Rainbow Prism Cube",
+    category: "fidget",
+    price: 21.95,
+    supplierCost: 7.40,
+    image: "https://ae-pic-a1.aliexpress-media.com/kf/Sc8944e13c9ee46b18de226cad1983ac5H.jpg_480x480q75.jpg_.avif",
+    sourceRating: 4.4,
+    sourceOrders: "600+",
+    description: "A solid crystal cube that splits light into shifting rainbow colour as you turn it in your hand — more hypnotic than squishy, for anyone who likes a visual fidget as much as a tactile one. Comes in four sizes."
   }
 ];
 
