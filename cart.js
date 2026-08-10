@@ -24,6 +24,36 @@ function productData(id) {
   return (typeof PRODUCT_DATA !== "undefined" && PRODUCT_DATA[id]) || null;
 }
 
+/* Some products (e.g. multi-size prism cubes) price differently per variant.
+   Falls back to the flat product price when no per-variant price is set. */
+function unitPrice(id, variant) {
+  const p = findProduct(id);
+  if (!p) return 0;
+  const d = productData(id);
+  if (d && d.options && d.options.prices && variant && d.options.prices[variant] != null) {
+    return d.options.prices[variant];
+  }
+  return p.price;
+}
+
+/* Lowest price across variants, for "From $X" display on cards. Returns
+   the flat product price when the product has no per-variant pricing. */
+function fromPrice(id) {
+  const p = findProduct(id);
+  if (!p) return 0;
+  const d = productData(id);
+  if (d && d.options && d.options.prices) {
+    const vals = Object.values(d.options.prices);
+    if (vals.length) return Math.min(...vals);
+  }
+  return p.price;
+}
+
+function hasVariantPricing(id) {
+  const d = productData(id);
+  return !!(d && d.options && d.options.prices && Object.keys(d.options.prices).length > 1);
+}
+
 /* ---------- Free shipping threshold ---------- */
 const FREE_SHIPPING_OVER = 60;
 
@@ -99,7 +129,7 @@ function cartTotals() {
     const p = findProduct(i.id);
     if (!p) return;
     count += i.qty;
-    subtotal += p.price * i.qty;
+    subtotal += unitPrice(i.id, i.variant) * i.qty;
   });
   return { count, subtotal };
 }
@@ -137,7 +167,7 @@ function renderCart() {
               <button class="remove-btn" data-remove="${key}">Remove</button>
             </div>
           </div>
-          <div>${money(p.price * i.qty)}</div>
+          <div>${money(unitPrice(i.id, i.variant) * i.qty)}</div>
         </div>`;
     }).join("");
 

@@ -84,7 +84,7 @@ function cardHTML(p) {
           ${CATEGORY_LABELS[p.category] || p.category}${nOpts > 1 ? ` · ${nOpts} options` : ""}
         </div>
         <div class="product-price">
-          ${money(p.price)}
+          ${hasVariantPricing(p.id) ? "From " + money(fromPrice(p.id)) : money(p.price)}
           <span class="view-link">View →</span>
         </div>
       </div>

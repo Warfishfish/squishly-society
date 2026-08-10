@@ -1343,7 +1343,19 @@ const PRODUCT_DATA = {
     "40mm",
     "50mm",
     "60mm"
-   ]
+   ],
+   "variantCost": {
+    "30mm": 7.40,
+    "40mm": 11.89,
+    "50mm": 16.29,
+    "60mm": 25.19
+   },
+   "prices": {
+    "30mm": 21.95,
+    "40mm": 31.95,
+    "50mm": 40.95,
+    "60mm": 58.95
+   }
   },
   "gallery": [
    "https://ae-pic-a1.aliexpress-media.com/kf/Sc8944e13c9ee46b18de226cad1983ac5H.jpg_480x480q75.jpg_.avif",

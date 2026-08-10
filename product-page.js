@@ -72,7 +72,8 @@ function renderProductPage() {
         </div>
 
         <h1>${p.name}</h1>
-        <div class="pdp-price">${money(p.price)}</div>
+        <div class="pdp-price" id="pdp-price">${money(unitPrice(p.id, opts ? opts.values[0] : null))}</div>
+        ${opts && opts.prices ? `<div class="pdp-price-note">Price varies by ${opts.label.toLowerCase()} — updates as you pick one below.</div>` : ""}
 
         <p class="pdp-desc">${p.description}</p>
 
@@ -158,6 +159,8 @@ function renderProductPage() {
         optRow.querySelectorAll(".opt-btn").forEach(x => x.classList.remove("selected"));
         b.classList.add("selected");
         selected = b.dataset.val;
+        const priceEl = document.getElementById("pdp-price");
+        if (priceEl) priceEl.textContent = money(unitPrice(p.id, selected));
       });
     });
   }
@@ -193,7 +196,7 @@ function renderRelated(p) {
       <div class="product-info">
         <h3>${o.name}</h3>
         <div class="product-meta">${CATEGORY_LABELS[o.category] || o.category}</div>
-        <div class="product-price">${money(o.price)}</div>
+        <div class="product-price">${hasVariantPricing(o.id) ? "From " + money(fromPrice(o.id)) : money(o.price)}</div>
       </div>
     </a>`).join("");
 }
