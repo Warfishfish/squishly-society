@@ -249,6 +249,13 @@ header {
   object-fit: cover;
 }
 
+/* Shown if a hot-linked supplier photo fails to load */
+.product-thumb.img-missing::after {
+  content: "🧸";
+  font-size: 3rem;
+  opacity: 0.35;
+}
+
 .product-info { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; }
 
 .product-info h3 { margin: 0 0 6px; font-size: 1.05rem; }
@@ -405,6 +412,10 @@ footer p { opacity: 0.7; font-size: 0.9rem; }
 .modal-thumb {
   text-align: center;
   padding: 0 0 16px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-thumb img {
@@ -413,6 +424,21 @@ footer p { opacity: 0.7; font-size: 0.9rem; }
   object-fit: cover;
   border-radius: 16px;
 }
+
+.modal-thumb.img-missing::after,
+.cart-item-thumb.img-missing::after {
+  content: "🧸";
+  opacity: 0.35;
+}
+
+.modal-thumb.img-missing::after { font-size: 4rem; }
+
+.cart-item-thumb.img-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cart-item-thumb.img-missing::after { font-size: 1.6rem; }
 
 .modal h2 { margin: 0 0 8px; }
 .modal .product-price { font-size: 1.4rem; margin-bottom: 18px; }

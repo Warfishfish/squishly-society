@@ -50,7 +50,7 @@ function renderProducts() {
 
   grid.innerHTML = list.map(p => `
     <div class="product-card" data-id="${p.id}">
-      <div class="product-thumb"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
+      <div class="product-thumb"><img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.closest('.product-thumb').classList.add('img-missing');this.remove();"></div>
       <div class="product-info">
         <h3>${p.name}</h3>
         <div class="product-meta">${CATEGORY_LABELS[p.category] || p.category}</div>
@@ -82,7 +82,7 @@ function openModal(id) {
   const p = findProduct(id);
   if (!p) return;
   modalBody.innerHTML = `
-    <div class="modal-thumb"><img src="${p.image}" alt="${p.name}"></div>
+    <div class="modal-thumb"><img src="${p.image}" alt="${p.name}" onerror="this.closest('.modal-thumb').classList.add('img-missing');this.remove();"></div>
     <h2>${p.name}</h2>
     <div class="product-price">${money(p.price)}</div>
     <p class="desc">${p.description}</p>
@@ -151,7 +151,7 @@ function renderCart() {
       if (!p) return "";
       return `
         <div class="cart-item">
-          <div class="cart-item-thumb"><img src="${p.image}" alt="${p.name}"></div>
+          <div class="cart-item-thumb"><img src="${p.image}" alt="${p.name}" onerror="this.closest('.cart-item-thumb').classList.add('img-missing');this.remove();"></div>
           <div class="cart-item-info">
             <div class="name">${p.name}</div>
             <div class="qty-row">
