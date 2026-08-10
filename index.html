@@ -3,52 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Squishy Society — Cute Squishy Toys, Delivered in Australia</title>
-<meta name="description" content="Squishy Society sells jumbo, mochi, and fidget squishy toys shipped to Australia. Placeholder demo storefront — see README to launch for real.">
+<title>Squishy Society | New Squishy Drops Every Friday — Shipped Australia-Wide</title>
+<meta name="description" content="New squishy drops every Friday. Mystery boxes, jumbo squishies, mochi and fidget toys — curated and shipped Australia-wide from Melbourne.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<div class="announce">
+  🔥 New drops every Friday &nbsp;·&nbsp; Free shipping on orders over $60 &nbsp;·&nbsp; Ships Australia-wide
+</div>
 
 <header>
   <div class="container nav">
     <a href="index.html" class="logo">🧸 Squishy Society<span class="dot">.</span></a>
     <nav class="nav-links">
-      <a href="index.html#shop">Shop</a>
-      <a href="index.html#why-us">Why Us</a>
-      <a href="about.html">About</a>
-      <a href="shipping-returns.html">Shipping &amp; Returns</a>
+      <a href="#drops">New Drops</a>
+      <a href="#shop">Shop</a>
+      <a href="#mystery">Mystery Boxes</a>
+      <a href="contact.html">Contact</a>
     </nav>
     <div class="nav-actions">
-      <button class="cart-btn" id="cart-btn">
-        🛒 Cart <span class="cart-count" id="cart-count">0</span>
-      </button>
+      <button class="cart-btn" id="cart-btn">🛒 Cart <span class="cart-count" id="cart-count">0</span></button>
     </div>
   </div>
 </header>
 
 <section class="hero">
   <div class="container">
-    <span class="hero-badge">✨ New drops added weekly</span>
-    <h1>Ridiculously squishy.<br>Delivered to your door.</h1>
-    <p>Jumbo, mochi, and fidget squishies for collectors, kids, and anyone who needs a stress-relief break. Handpicked favourites, shipped Australia-wide.</p>
-    <a href="#shop" class="btn">Shop the collection</a>
+    <span class="hero-badge">✨ This week's drop is live</span>
+    <h1>New squishies.<br>Every Friday.</h1>
+    <p>We hunt down whatever's blowing up, squeeze-test it, and drop a fresh batch every week. Mystery boxes, jumbo squishies, mochi and fidget picks — shipped Australia-wide.</p>
+    <a href="#drops" class="btn">See this week's drop</a>
+    <a href="#mystery" class="btn secondary" style="margin-left:10px;">Mystery boxes</a>
   </div>
 </section>
 
 <div class="trust-strip container">
-  <span>📦 Tracked shipping</span>
-  <span>🇦🇺 Aussie-owned &amp; run</span>
-  <span>💬 Real human support</span>
-  <span>↩️ 30-day returns</span>
+  <span>🇦🇺 Aussie-owned, ships nationwide</span>
+  <span>📦 Free shipping over $60</span>
+  <span>🔄 New drops weekly</span>
+  <span>💬 Real replies, usually same day</span>
 </div>
 
+<!-- Category tiles -->
+<section class="section" id="browse">
+  <div class="container">
+    <div class="section-head">
+      <h2>Browse by type</h2>
+      <p>Jump straight to whatever kind of squish you're after.</p>
+    </div>
+    <div class="tile-row" id="tile-row"></div>
+  </div>
+</section>
+
+<!-- This week's drop -->
+<section class="section drop-section" id="drops">
+  <div class="container">
+    <div class="section-head">
+      <h2>Just landed</h2>
+      <p>The newest additions to the shop. These move fastest.</p>
+    </div>
+    <div class="product-grid" id="drop-grid"></div>
+  </div>
+</section>
+
+<!-- Mystery boxes -->
+<section class="section" id="mystery">
+  <div class="container">
+    <div class="section-head">
+      <h2>🎁 Mystery &amp; blind picks</h2>
+      <p>Sealed, random, and genuinely a surprise — you don't choose which one you get.</p>
+    </div>
+    <div class="product-grid" id="mystery-grid"></div>
+  </div>
+</section>
+
+<!-- Full shop -->
 <section class="section" id="shop">
   <div class="container">
     <div class="section-head">
-      <h2>Shop Squishies</h2>
-      <p>Every squishy here is slow-rise foam, built for satisfying squeezes and stress relief.</p>
+      <h2>Shop everything</h2>
+      <p>Every squishy we currently stock.</p>
     </div>
     <div class="filters" id="filters"></div>
+    <div class="shop-bar">
+      <span id="product-count" class="count"></span>
+      <label class="sort-wrap">
+        Sort:
+        <select id="sort-select">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </label>
+    </div>
     <div class="product-grid" id="product-grid"></div>
   </div>
 </section>
@@ -56,29 +105,29 @@
 <section class="section" id="why-us">
   <div class="container">
     <div class="section-head">
-      <h2>Why shop with us</h2>
-      <p>We're a small Australian-run store, not a warehouse — here's what that means for you.</p>
+      <h2>How this works</h2>
+      <p>We're a small Australian store, and we'd rather be upfront about it.</p>
     </div>
     <div class="features">
       <div class="feature-card">
         <div class="emoji">🔎</div>
-        <h3>Handpicked</h3>
-        <p>We test and curate every squishy before it goes on the site — no random junk.</p>
+        <h3>We pick the drops</h3>
+        <p>Every item is chosen from listings with a real track record — not auto-imported by the hundred.</p>
       </div>
       <div class="feature-card">
-        <div class="emoji">📦</div>
-        <h3>Tracked delivery</h3>
-        <p>Every order ships with tracking so you always know where your parcel is.</p>
+        <div class="emoji">✈️</div>
+        <h3>Shipped from our supplier</h3>
+        <p>Orders ship direct from overseas, which keeps prices down but means 12–25 business days.</p>
       </div>
       <div class="feature-card">
         <div class="emoji">💬</div>
-        <h3>Real support</h3>
-        <p>Questions or issues? A real person replies — not a bot loop.</p>
+        <h3>A real person replies</h3>
+        <p>Message us and you get an actual human, usually the same day.</p>
       </div>
       <div class="feature-card">
         <div class="emoji">↩️</div>
-        <h3>Easy returns</h3>
-        <p>Not happy? See our Shipping &amp; Returns page for how we sort it out.</p>
+        <h3>Straightforward returns</h3>
+        <p>Faulty or not as described? Sorted, per Australian Consumer Law. 14 days for change of mind.</p>
       </div>
     </div>
   </div>
@@ -87,11 +136,11 @@
 <section class="section">
   <div class="container">
     <div class="newsletter">
-      <h2>Get 10% off your first order</h2>
-      <p>Join the squish list for new drops and restock alerts.</p>
+      <h2>Get the drop before it sells out</h2>
+      <p>One email each Friday when the new batch lands. Nothing else.</p>
       <form class="newsletter-form" id="newsletter-form">
         <input type="email" placeholder="you@email.com" required>
-        <button type="submit" class="btn">Subscribe</button>
+        <button type="submit" class="btn">Notify me</button>
       </form>
     </div>
   </div>
@@ -102,18 +151,22 @@
     <div class="footer-grid">
       <div>
         <h4>🧸 Squishy Society</h4>
-        <p>Cute, squishy, and shipped Australia-wide. A small store built one squeeze at a time.</p>
+        <p>New squishy drops every Friday, shipped Australia-wide.</p>
+        <p style="margin-top:10px;">
+          <a href="mailto:squishysocietyshop@gmail.com">squishysocietyshop@gmail.com</a>
+        </p>
       </div>
       <div>
         <h4>Shop</h4>
-        <a href="index.html#shop">All squishies</a>
-        <a href="index.html#why-us">Why us</a>
+        <a href="#drops">New drops</a>
+        <a href="#shop">All squishies</a>
+        <a href="#mystery">Mystery boxes</a>
       </div>
       <div>
         <h4>Support</h4>
+        <a href="contact.html">Contact us</a>
         <a href="shipping-returns.html">Shipping &amp; Returns</a>
         <a href="about.html">About</a>
-        <a href="mailto:hello@example.com">Contact</a>
       </div>
       <div>
         <h4>Legal</h4>
@@ -122,40 +175,14 @@
       </div>
     </div>
     <div class="footer-bottom">
-      © <span id="year"></span> Squishy Society. This is a demo storefront — see the README for how to launch it for real.
+      © <span id="year"></span> Squishy Society · ABN [add your ABN here] · Demo storefront — see README before launch.
     </div>
   </div>
 </footer>
 
-<!-- Product modal -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <button class="modal-close" id="modal-close">✕</button>
-    <div id="modal-body"></div>
-  </div>
-</div>
-
-<!-- Cart drawer -->
-<div class="cart-overlay" id="cart-overlay">
-  <div class="cart-drawer">
-    <div class="cart-head">
-      <h3>Your Cart</h3>
-      <button class="modal-close" id="cart-close">✕</button>
-    </div>
-    <div class="cart-items" id="cart-items"></div>
-    <div class="cart-foot">
-      <div class="cart-subtotal">
-        <span>Subtotal</span>
-        <span id="cart-subtotal">$0.00 AUD</span>
-      </div>
-      <button class="btn" id="checkout-btn" style="width:100%;">Checkout</button>
-      <div class="snipcart-hint">Demo cart — no real payment connected yet.</div>
-    </div>
-  </div>
-</div>
-
 <script src="products.js"></script>
+<script src="product-data.js"></script>
+<script src="cart.js"></script>
 <script src="app.js"></script>
-<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 </body>
 </html>

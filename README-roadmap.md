@@ -93,6 +93,14 @@ Either way, you'll need a **Stripe account** (Stripe operates in Australia, payo
 
 ## 6. Sourcing from AliExpress (and skipping Temu)
 
+✅ **First pass done** — I browsed AliExpress directly and replaced all 12 placeholder products in `products.js` with real listings (real photos, real prices, real ratings/order counts noted in each product's `sourceRating`/`sourceOrders` field). A few things to know about this:
+
+- I picked listings rated 4.2★ or higher with solid order counts, and avoided anything using licensed characters (no Pokémon, Sanrio, Disney, etc.) — all generic designs.
+- I did **not** purchase anything or create any accounts — this is research only, exactly as discussed.
+- AliExpress pricing/ratings shift constantly (I saw the same listing show different prices across page loads). Treat the `supplierCost` values as a starting estimate, not gospel — recheck the actual listing before you commit to a supplier.
+- A couple of the photos (jumbo strawberry in particular) still have AliExpress's own promo banner baked into the crop. Fine for a working prototype; swap for a cleaner shot before real launch.
+- These are still just candidates. Before actually using any of them, click through to the real listing yourself, read recent reviews, and check the seller's overall store rating — not just the one listing.
+
 Quick recap of why: Temu has no dropshipping program — no API, no bulk tools, and orders arrive in Temu-branded packaging with the retail price visible, which kills your branding and makes it obvious to the customer they could've bought it cheaper themselves. AliExpress, by contrast, has an actual **Dropshipping Center** built for this.
 
 1. Use AliExpress's Dropshipping Center (inside your AliExpress account) to browse trending/best-selling items in the squishy/soft-toy category, and cross-check against supplier ratings, order counts, and reviews — avoid brand-new listings with no track record.
@@ -103,6 +111,16 @@ Quick recap of why: Temu has no dropshipping program — no API, no bulk tools, 
 ### One real risk to flag: unlicensed character squishies
 
 A lot of squishy listings on AliExpress are unlicensed knockoffs of characters — Pokémon, Sanrio (Hello Kitty), Disney, anime characters, and so on. Reselling those exposes *you*, not just the original supplier, to trademark/copyright infringement risk, and marketplaces or payment processors can shut down accounts over it. Stick to original/generic designs (animals, food shapes, abstract mochi shapes) — which is what I used in the placeholder catalogue — rather than anything that's clearly a copy of a copyrighted character.
+
+---
+
+## 6b. Contact form — connect a backend before launch
+
+`contact.html` currently builds the message and opens the customer's email app pre-filled (a `mailto:` link). That works with zero setup, but it's not ideal — some people don't have a mail client configured, and you get no record of enquiries.
+
+Since you're already on Netlify, the easiest upgrade is **Netlify Forms**: add `netlify` and `name="contact"` attributes to the `<form>` tag, add a hidden `form-name` input, and Netlify captures every submission in your dashboard and emails you. Free tier covers 100 submissions/month. [Formspree](https://formspree.io) is the alternative if you ever move off Netlify.
+
+Same applies to the newsletter signup on the homepage — it's currently a placeholder. Connect it to Mailchimp, Klaviyo or Netlify Forms when you're ready to actually send the Friday drop email.
 
 ---
 

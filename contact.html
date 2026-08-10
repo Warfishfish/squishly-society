@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Squishy Society</title>
+<meta name="description" content="Get in touch with Squishy Society. Order help, shipping questions, returns and wholesale enquiries.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="announce">
+  🔥 New drops every Friday &nbsp;·&nbsp; Free shipping on orders over $60 &nbsp;·&nbsp; Ships Australia-wide
+</div>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo">🧸 Squishy Society<span class="dot">.</span></a>
+    <nav class="nav-links">
+      <a href="index.html#drops">New Drops</a>
+      <a href="index.html#shop">Shop</a>
+      <a href="index.html#mystery">Mystery Boxes</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="cart-btn" id="cart-btn">🛒 Cart <span class="cart-count" id="cart-count">0</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container contact-wrap">
+
+    <div class="contact-intro">
+      <h1>Get in touch</h1>
+      <p>A real person reads these — usually replying the same day, and always within 2 business days.
+         Answer the couple of questions below and we'll have what we need to help straight away.</p>
+      <p class="contact-direct">
+        Prefer email? <a href="mailto:squishysocietyshop@gmail.com">squishysocietyshop@gmail.com</a>
+      </p>
+
+      <div class="faq-quick">
+        <h3>Quick answers</h3>
+        <details>
+          <summary>Where's my order?</summary>
+          <p>Orders are placed with our supplier within 1–3 business days, then take 12–25 business days to arrive.
+             You'll get a tracking link by email once it ships. If it's been more than 5 business days with no
+             tracking, tell us your order number below.</p>
+        </details>
+        <details>
+          <summary>Can I return something?</summary>
+          <p>Faulty, damaged or not as described — always, under Australian Consumer Law. Changed your mind —
+             within 14 days, unused and in original packaging, with return postage on you. Full details on our
+             <a href="shipping-returns.html">Shipping &amp; Returns</a> page.</p>
+        </details>
+        <details>
+          <summary>Why does shipping take a few weeks?</summary>
+          <p>We ship direct from our supplier rather than holding local stock. It keeps prices down but adds
+             transit time. We'd rather tell you that upfront than surprise you at checkout.</p>
+        </details>
+        <details>
+          <summary>Do you do wholesale or bulk orders?</summary>
+          <p>Yes — party packs, school and event orders are welcome. Pick "Wholesale or bulk order" below
+             and tell us rough quantities.</p>
+        </details>
+      </div>
+    </div>
+
+    <form class="contact-form" id="contact-form" novalidate>
+      <h2>Send us a message</h2>
+
+      <div class="field">
+        <label for="topic">What's this about? <span class="req">*</span></label>
+        <select id="topic" required>
+          <option value="">Choose one…</option>
+          <option>Where is my order?</option>
+          <option>Problem with an item I received</option>
+          <option>Return or refund</option>
+          <option>Question before I buy</option>
+          <option>Wholesale or bulk order</option>
+          <option>Something else</option>
+        </select>
+      </div>
+
+      <div class="field" id="order-field" style="display:none;">
+        <label for="orderno">Order number</label>
+        <input id="orderno" type="text" placeholder="e.g. SC-10234">
+        <small>It's in your confirmation email. If you can't find it, leave this blank.</small>
+      </div>
+
+      <div class="field" id="fault-field" style="display:none;">
+        <label for="fault">What's wrong with it?</label>
+        <select id="fault">
+          <option value="">Choose one…</option>
+          <option>Arrived damaged</option>
+          <option>Wrong item or variant sent</option>
+          <option>Not as described</option>
+          <option>Missing from the parcel</option>
+          <option>Other</option>
+        </select>
+        <small>A photo helps a lot — you can attach one when you email us the reply.</small>
+      </div>
+
+      <div class="field">
+        <label for="name">Your name <span class="req">*</span></label>
+        <input id="name" type="text" required placeholder="First name is fine">
+      </div>
+
+      <div class="field">
+        <label for="email">Email <span class="req">*</span></label>
+        <input id="email" type="email" required placeholder="you@email.com">
+        <small>So we can reply. We don't add you to marketing from this form.</small>
+      </div>
+
+      <div class="field">
+        <label for="msg">Message <span class="req">*</span></label>
+        <textarea id="msg" rows="6" required placeholder="Tell us what's going on…"></textarea>
+      </div>
+
+      <button type="submit" class="btn" style="width:100%;">Send message</button>
+      <p class="form-note" id="form-note"></p>
+    </form>
+
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>🧸 Squishy Society</h4>
+        <p>New squishy drops every Friday, shipped Australia-wide.</p>
+        <p style="margin-top:10px;">
+          <a href="mailto:squishysocietyshop@gmail.com">squishysocietyshop@gmail.com</a>
+        </p>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <a href="index.html#drops">New drops</a>
+        <a href="index.html#shop">All squishies</a>
+        <a href="index.html#mystery">Mystery boxes</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="contact.html">Contact us</a>
+        <a href="shipping-returns.html">Shipping &amp; Returns</a>
+        <a href="about.html">About</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="shipping-returns.html">Returns Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © <span id="year"></span> Squishy Society · ABN [add your ABN here] · Demo storefront — see README before launch.
+    </div>
+  </div>
+</footer>
+
+<script src="products.js"></script>
+<script src="cart.js"></script>
+<script>
+const topic = document.getElementById("topic");
+const orderField = document.getElementById("order-field");
+const faultField = document.getElementById("fault-field");
+
+topic.addEventListener("change", () => {
+  const v = topic.value;
+  const needsOrder = ["Where is my order?", "Problem with an item I received", "Return or refund"].includes(v);
+  const needsFault = ["Problem with an item I received", "Return or refund"].includes(v);
+  orderField.style.display = needsOrder ? "" : "none";
+  faultField.style.display = needsFault ? "" : "none";
+});
+
+document.getElementById("contact-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const note = document.getElementById("form-note");
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const msg = document.getElementById("msg").value.trim();
+
+  if (!topic.value || !name || !email || !msg) {
+    note.className = "form-note err";
+    note.textContent = "Please fill in the required fields marked *.";
+    return;
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    note.className = "form-note err";
+    note.textContent = "That email address doesn't look right.";
+    return;
+  }
+
+  // Build a pre-filled email. Replace this with a real form backend before launch
+  // (Netlify Forms, Formspree, or similar) — see the README.
+  const lines = [
+    "Topic: " + topic.value,
+    document.getElementById("orderno").value.trim() ? "Order number: " + document.getElementById("orderno").value.trim() : null,
+    document.getElementById("fault").value ? "Issue: " + document.getElementById("fault").value : null,
+    "Name: " + name,
+    "Email: " + email,
+    "",
+    msg
+  ].filter(Boolean);
+
+  const subject = encodeURIComponent("[Squishy Society] " + topic.value);
+  const body = encodeURIComponent(lines.join("\n"));
+  window.location.href = "mailto:squishysocietyshop@gmail.com?subject=" + subject + "&body=" + body;
+
+  note.className = "form-note ok";
+  note.textContent = "Opening your email app with the message ready to send…";
+});
+</script>
+</body>
+</html>
