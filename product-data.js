@@ -1350,46 +1350,8 @@ const PRODUCT_DATA = {
    "https://ae-pic-a1.aliexpress-media.com/kf/S108b6ca87a2046de9084650d144d013cN.jpg_480x480q75.jpg_.avif",
    "https://ae-pic-a1.aliexpress-media.com/kf/S23661bad086c4211b19864843039b99dA.jpg_480x480q75.jpg_.avif"
   ]
- },
- "sq-064": {
-  "supplier": {
-   "rating": 4.4,
-   "reviews": 88,
-   "tags": [
-    "limited functionality",
-    "nice",
-    "interesting and fun",
-    "beautiful",
-    "high quality",
-    "matches description"
-   ],
-   "quotes": [
-    {
-     "text": "Wonderful, it looks great. Ideal for my optics experiments.",
-     "author": "L***Z",
-     "variant": "40mm"
-    },
-    {
-     "text": "Very nice, well-crafted physics toy. I use it at school.",
-     "author": null,
-     "variant": "40mm"
-    }
-   ]
-  },
-  "options": {
-   "label": "Size",
-   "values": [
-    "30mm",
-    "40mm"
-   ]
-  },
-  "gallery": [
-   "https://ae-pic-a1.aliexpress-media.com/kf/Se72f4cb26aeb41a7bf95d4171701f91fE.jpg_480x480q75.jpg_.avif",
-   "https://ae-pic-a1.aliexpress-media.com/kf/Sdaf5784ca18d4958b4a2f2420f202c4ah.jpg_480x480q75.jpg_.avif",
-   "https://ae-pic-a1.aliexpress-media.com/kf/S19bdb775bc234d06a0546f0d190e2ea9h.jpg_480x480q75.jpg_.avif"
-  ]
  }
 };
 
 const MYSTERY_IDS = ["sq-023", "sq-026", "sq-031", "sq-036", "sq-037", "sq-043", "sq-044", "sq-046", "sq-050"];
-const NEW_DROP_IDS = ["sq-057", "sq-058", "sq-059", "sq-060", "sq-061", "sq-062", "sq-063", "sq-064"];
+const NEW_DROP_IDS = ["sq-057", "sq-058", "sq-059", "sq-060", "sq-061", "sq-062", "sq-063"];
