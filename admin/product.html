@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Edit product — Squishy Society admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="admin-shell"></div>
+
+<div class="admin-container">
+  <div class="page-head">
+    <div>
+      <h1 id="title">Product</h1>
+      <p id="subtitle"></p>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <a class="btn-ghost" href="products.html">Back</a>
+      <button class="btn" id="save" type="button">Save</button>
+    </div>
+  </div>
+
+  <div id="form-area"><div class="loading">Loading…</div></div>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+import {
+  supabase, requireAuth, renderShell, money, pct, profitOf, toast, esc, friendlyError,
+  STATUS_LABELS, RESEARCH_STATUS_LABELS
+} from "./admin.js";
+
+const user = await requireAuth();
+renderShell("products.html", user);
+
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
+const isNew = !id || params.get("new") === "1";
+
+let product = null;
+let variants = [];
+
+if (!isNew) {
+  const [{ data: p, error }, { data: vs }] = await Promise.all([
+    supabase.from("products").select("*").eq("id", id).single(),
+    supabase.from("product_variants").select("*").eq("product_id", id).order("sort_order")
+  ]);
+  if (error || !p) {
+    document.getElementById("form-area").innerHTML =
+      `<div class="note-box">Couldn't find that product.</div>`;
+    throw error || new Error("not found");
+  }
+  product = p;
+  variants = vs || [];
+} else {
+  product = {
+    sku: "", name: "", category: "mochi", description: "",
+    price: 0, supplier_cost: 0, shipping_cost: 0,
+    supplier_name: "", supplier_url: "", image: "", gallery: [],
+    status: "draft", research_status: null,
+    source_rating: null, source_reviews: null, source_orders: "",
+    source_tags: [], source_quotes: [],
+    is_mystery: false, is_new_drop: false, notes: ""
+  };
+  // Prefill from the importer if we arrived from there.
+  const draft = sessionStorage.getItem("squishy_import_draft");
+  if (draft) {
+    try { Object.assign(product, JSON.parse(draft)); } catch (e) {}
+    sessionStorage.removeItem("squishy_import_draft");
+  }
+}
+
+document.getElementById("title").textContent = isNew ? "New product" : product.name;
+document.getElementById("subtitle").textContent = isNew
+  ? "Saved as a draft — it won't appear on the shop until you set it to Active."
+  : product.sku;
+
+/* ---------- render form ---------- */
+
+function statusOptions(sel) {
+  return Object.entries(STATUS_LABELS)
+    .map(([v, l]) => `<option value="${v}" ${v === sel ? "selected" : ""}>${l}</option>`).join("");
+}
+function researchOptions(sel) {
+  return `<option value="">—</option>` + Object.entries(RESEARCH_STATUS_LABELS)
+    .map(([v, l]) => `<option value="${v}" ${v === sel ? "selected" : ""}>${l}</option>`).join("");
+}
+
+document.getElementById("form-area").innerHTML = `
+  <div class="card">
+    <h2>Basics</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label for="f-name">Product name</label>
+        <input type="text" id="f-name" value="${esc(product.name)}">
+      </div>
+      <div class="field">
+        <label for="f-sku">SKU</label>
+        <input type="text" id="f-sku" value="${esc(product.sku)}" placeholder="sq-065">
+        <div class="hint">Short unique code. Can't be changed casually — it links everything together.</div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label for="f-category">Category</label>
+        <input type="text" id="f-category" value="${esc(product.category || "")}" list="cat-list">
+        <datalist id="cat-list">
+          <option value="mochi"><option value="keychain"><option value="prism">
+        </datalist>
+      </div>
+      <div class="field">
+        <label for="f-status">Status</label>
+        <select id="f-status">${statusOptions(product.status)}</select>
+        <div class="hint">Only <strong>Active</strong> shows on the shop.</div>
+      </div>
+      <div class="field">
+        <label for="f-research">Research stage</label>
+        <select id="f-research">${researchOptions(product.research_status)}</select>
+        <div class="hint">Only relevant while status is Research.</div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-description">Description</label>
+      <textarea id="f-description">${esc(product.description)}</textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pricing &amp; profit</h2>
+    <div class="grid-3">
+      <div class="field">
+        <label for="f-price">Our selling price</label>
+        <input type="number" id="f-price" step="0.01" min="0" value="${Number(product.price || 0)}">
+      </div>
+      <div class="field">
+        <label for="f-cost">Supplier cost <span class="private-tag">private</span></label>
+        <input type="number" id="f-cost" step="0.01" min="0" value="${Number(product.supplier_cost || 0)}">
+      </div>
+      <div class="field">
+        <label for="f-shipping">Shipping cost <span class="private-tag">private</span></label>
+        <input type="number" id="f-shipping" step="0.01" min="0" value="${Number(product.shipping_cost || 0)}">
+      </div>
+    </div>
+    <div id="profit-readout" class="note-box"></div>
+    <p class="hint" style="margin-top:8px;">
+      If this product has variants below, each variant carries its own price and cost —
+      the figures above act as the fallback and the headline price.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Variants</h2>
+    <p class="hint" style="margin-top:-4px;margin-bottom:12px;">
+      Sizes or pack counts that cost different amounts. Leave empty for a single-price product.
+    </p>
+    <div id="variant-list"></div>
+    <button class="btn-ghost btn-sm" id="add-variant" type="button">+ Add variant</button>
+  </div>
+
+  <div class="card">
+    <h2>Sourcing <span class="private-tag">private</span></h2>
+    <div class="grid-2">
+      <div class="field">
+        <label for="f-supplier-name">Supplier</label>
+        <input type="text" id="f-supplier-name" value="${esc(product.supplier_name || "")}" placeholder="AliExpress">
+      </div>
+      <div class="field">
+        <label for="f-supplier-url">Supplier listing URL</label>
+        <input type="url" id="f-supplier-url" value="${esc(product.supplier_url || "")}" placeholder="https://…">
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-notes">Internal notes</label>
+      <textarea id="f-notes" placeholder="Anything you want to remember. Never shown to customers.">${esc(product.notes || "")}</textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Images</h2>
+    <div class="field">
+      <label for="f-image">Main image URL</label>
+      <input type="text" id="f-image" value="${esc(product.image || "")}">
+    </div>
+    <div class="field">
+      <label for="f-gallery">Gallery URLs</label>
+      <textarea id="f-gallery" placeholder="One URL per line">${esc((product.gallery || []).join("\n"))}</textarea>
+      <div class="hint">One per line.</div>
+    </div>
+    <div id="img-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Supplier listing reviews</h2>
+    <p class="hint" style="margin-top:-4px;margin-bottom:12px;">
+      Shown on the shop, clearly labelled as the supplier's reviews rather than ours.
+    </p>
+    <div class="grid-3">
+      <div class="field">
+        <label for="f-rating">Rating</label>
+        <input type="number" id="f-rating" step="0.1" min="0" max="5" value="${product.source_rating ?? ""}">
+      </div>
+      <div class="field">
+        <label for="f-reviews">Review count</label>
+        <input type="number" id="f-reviews" min="0" value="${product.source_reviews ?? ""}">
+      </div>
+      <div class="field">
+        <label for="f-orders">Orders</label>
+        <input type="text" id="f-orders" value="${esc(product.source_orders || "")}" placeholder="2,000+">
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-tags">Review themes</label>
+      <textarea id="f-tags" placeholder="One per line">${esc((product.source_tags || []).join("\n"))}</textarea>
+      <div class="hint">One per line. These show as the little pills on the product page.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Shop placement</h2>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;">
+      <label style="font-weight:600;font-size:14px;">
+        <input type="checkbox" id="f-newdrop" ${product.is_new_drop ? "checked" : ""} style="width:auto;margin-right:6px;">
+        Show "Just landed" badge
+      </label>
+      <label style="font-weight:600;font-size:14px;">
+        <input type="checkbox" id="f-mystery" ${product.is_mystery ? "checked" : ""} style="width:auto;margin-right:6px;">
+        Mystery item
+      </label>
+    </div>
+  </div>
+
+  ${!isNew ? `
+  <div class="card">
+    <h2>Danger zone</h2>
+    <p class="hint" style="margin-top:-4px;margin-bottom:12px;">
+      Archiving hides it from the shop but keeps all its data. Deleting is permanent.
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-ghost" id="archive" type="button">Archive product</button>
+      <button class="btn-danger" id="delete" type="button">Delete permanently</button>
+    </div>
+  </div>` : ""}
+`;
+
+/* ---------- variants editor ---------- */
+
+const vList = document.getElementById("variant-list");
+
+function variantRow(v = { label: "", variant_cost: 0, price: 0 }) {
+  const row = document.createElement("div");
+  row.className = "variant-row";
+  row.innerHTML = `
+    <input type="text" class="v-label" placeholder="e.g. 30mm" value="${esc(v.label)}">
+    <input type="number" class="v-cost" step="0.01" min="0" placeholder="cost" value="${Number(v.variant_cost || 0)}">
+    <input type="number" class="v-price" step="0.01" min="0" placeholder="price" value="${Number(v.price || 0)}">
+    <span class="calc"></span>
+    <button class="btn-ghost btn-sm v-remove" type="button">Remove</button>
+  `;
+  row.querySelector(".v-remove").addEventListener("click", () => {
+    row.remove();
+    recalcAll();
+  });
+  row.querySelectorAll("input").forEach(i => i.addEventListener("input", recalcAll));
+  vList.appendChild(row);
+  return row;
+}
+
+variants.forEach(variantRow);
+document.getElementById("add-variant").addEventListener("click", () => {
+  variantRow();
+  recalcAll();
+});
+
+/* ---------- live profit ---------- */
+
+function readNum(id) { return Number(document.getElementById(id).value || 0); }
+
+function recalcAll() {
+  const ship = readNum("f-shipping");
+
+  // headline
+  const { cost, profit, margin } = profitOf(readNum("f-price"), readNum("f-cost"), ship);
+  const cls = margin >= 0.5 ? "margin-good" : margin >= 0.35 ? "margin-ok" : "margin-bad";
+  document.getElementById("profit-readout").innerHTML =
+    `Landed cost <strong>${money(cost)}</strong> · ` +
+    `Profit <strong>${money(profit)}</strong> · ` +
+    `Margin <strong class="${cls}">${readNum("f-price") > 0 ? pct(margin) : "—"}</strong>`;
+
+  // per variant
+  vList.querySelectorAll(".variant-row").forEach(row => {
+    const c = Number(row.querySelector(".v-cost").value || 0);
+    const p = Number(row.querySelector(".v-price").value || 0);
+    const r = profitOf(p, c, ship);
+    const vcls = r.margin >= 0.5 ? "margin-good" : r.margin >= 0.35 ? "margin-ok" : "margin-bad";
+    row.querySelector(".calc").innerHTML = p > 0
+      ? `${money(r.profit)} · <span class="${vcls}">${pct(r.margin)}</span>`
+      : "";
+  });
+}
+
+["f-price", "f-cost", "f-shipping"].forEach(i =>
+  document.getElementById(i).addEventListener("input", recalcAll));
+recalcAll();
+
+/* ---------- image preview ---------- */
+
+function refreshPreview() {
+  const urls = [document.getElementById("f-image").value.trim()]
+    .concat(document.getElementById("f-gallery").value.split("\n").map(s => s.trim()))
+    .filter(Boolean);
+  document.getElementById("img-preview").innerHTML = urls.map(u =>
+    `<img src="${esc(u)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;background:#f4eef7;"
+      onerror="this.style.opacity=0.25">`).join("");
+}
+document.getElementById("f-image").addEventListener("input", refreshPreview);
+document.getElementById("f-gallery").addEventListener("input", refreshPreview);
+refreshPreview();
+
+/* ---------- save ---------- */
+
+function linesToArray(id) {
+  return document.getElementById(id).value.split("\n").map(s => s.trim()).filter(Boolean);
+}
+
+document.getElementById("save").addEventListener("click", async () => {
+  const btn = document.getElementById("save");
+
+  const payload = {
+    sku: document.getElementById("f-sku").value.trim(),
+    name: document.getElementById("f-name").value.trim(),
+    category: document.getElementById("f-category").value.trim() || null,
+    description: document.getElementById("f-description").value.trim(),
+    price: readNum("f-price"),
+    supplier_cost: readNum("f-cost"),
+    shipping_cost: readNum("f-shipping"),
+    supplier_name: document.getElementById("f-supplier-name").value.trim() || null,
+    supplier_url: document.getElementById("f-supplier-url").value.trim() || null,
+    image: document.getElementById("f-image").value.trim() || null,
+    gallery: linesToArray("f-gallery"),
+    status: document.getElementById("f-status").value,
+    research_status: document.getElementById("f-research").value || null,
+    source_rating: document.getElementById("f-rating").value === "" ? null : Number(document.getElementById("f-rating").value),
+    source_reviews: document.getElementById("f-reviews").value === "" ? null : Number(document.getElementById("f-reviews").value),
+    source_orders: document.getElementById("f-orders").value.trim() || null,
+    source_tags: linesToArray("f-tags"),
+    is_new_drop: document.getElementById("f-newdrop").checked,
+    is_mystery: document.getElementById("f-mystery").checked
+  };
+
+  // Validate before hitting the network, so errors are instant and clear.
+  if (!payload.name) { toast("Give the product a name.", "err"); return; }
+  if (!payload.sku)  { toast("Give the product a SKU.", "err"); return; }
+  if (payload.supplier_url && !/^https?:\/\//i.test(payload.supplier_url)) {
+    toast("Supplier URL should start with http:// or https://", "err"); return;
+  }
+
+  const rows = [...vList.querySelectorAll(".variant-row")].map((row, i) => ({
+    label: row.querySelector(".v-label").value.trim(),
+    variant_cost: Number(row.querySelector(".v-cost").value || 0),
+    price: Number(row.querySelector(".v-price").value || 0),
+    sort_order: i * 10
+  })).filter(v => v.label);
+
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+
+  try {
+    let productId = id;
+
+    if (isNew) {
+      const { data, error } = await supabase.from("products").insert(payload).select("id").single();
+      if (error) throw error;
+      productId = data.id;
+    } else {
+      const { error } = await supabase.from("products").update(payload).eq("id", id);
+      if (error) throw error;
+    }
+
+    // Variants are replaced wholesale — simpler and safer than diffing,
+    // and they're small. Order history won't reference these directly.
+    await supabase.from("product_variants").delete().eq("product_id", productId);
+    if (rows.length) {
+      const { error: vErr } = await supabase.from("product_variants")
+        .insert(rows.map(r => ({ ...r, product_id: productId })));
+      if (vErr) throw vErr;
+    }
+
+    toast("Saved.");
+    if (isNew) {
+      setTimeout(() => location.replace("product.html?id=" + encodeURIComponent(productId)), 600);
+    }
+  } catch (e) {
+    toast(friendlyError(e), "err");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Save";
+  }
+});
+
+/* ---------- archive / delete ---------- */
+
+const archiveBtn = document.getElementById("archive");
+if (archiveBtn) {
+  archiveBtn.addEventListener("click", async () => {
+    const { error } = await supabase.from("products").update({ status: "archived" }).eq("id", id);
+    if (error) { toast(friendlyError(error), "err"); return; }
+    toast("Archived.");
+    setTimeout(() => location.assign("products.html"), 700);
+  });
+}
+
+const deleteBtn = document.getElementById("delete");
+if (deleteBtn) {
+  // Two-step confirm rather than a browser dialog, which can freeze automation
+  // and is easy to click through by accident.
+  let armed = false;
+  deleteBtn.addEventListener("click", async () => {
+    if (!armed) {
+      armed = true;
+      deleteBtn.textContent = "Click again to confirm — this can't be undone";
+      setTimeout(() => {
+        armed = false;
+        deleteBtn.textContent = "Delete permanently";
+      }, 4000);
+      return;
+    }
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) { toast(friendlyError(error), "err"); return; }
+    toast("Deleted.");
+    setTimeout(() => location.assign("products.html"), 700);
+  });
+}
+</script>
+
+</body>
+</html>

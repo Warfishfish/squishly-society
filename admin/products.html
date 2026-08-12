@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Products — Squishy Society admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="admin-shell"></div>
+
+<div class="admin-container">
+  <div class="page-head">
+    <div>
+      <h1>Products</h1>
+      <p id="count">Loading…</p>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <a class="btn-ghost" href="import.html">Add from URL</a>
+      <a class="btn" href="product.html?new=1">New product</a>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="q" placeholder="Search name, SKU or supplier…">
+    <select id="status-filter">
+      <option value="">All statuses</option>
+      <option value="active">Active</option>
+      <option value="draft">Draft</option>
+      <option value="hidden">Hidden</option>
+      <option value="out_of_stock">Out of stock</option>
+      <option value="research">Research</option>
+      <option value="archived">Archived</option>
+    </select>
+    <select id="category-filter">
+      <option value="">All categories</option>
+    </select>
+    <button class="btn-ghost btn-sm" id="clear" type="button">Clear</button>
+  </div>
+
+  <div id="list"><div class="loading">Loading…</div></div>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+import {
+  supabase, requireAuth, renderShell, money, pct, profitOf, statusPill, esc
+} from "./admin.js";
+
+const user = await requireAuth();
+renderShell("products.html", user);
+
+const qEl = document.getElementById("q");
+const statusEl = document.getElementById("status-filter");
+const catEl = document.getElementById("category-filter");
+
+// Prefill filters from the URL so dashboard links land pre-filtered.
+const params = new URLSearchParams(location.search);
+if (params.get("status")) statusEl.value = params.get("status");
+const wantCategory = params.get("category") || "";
+
+const [{ data: products, error }, { data: variants }] = await Promise.all([
+  supabase.from("products").select("*").order("sort_order", { ascending: true }),
+  supabase.from("product_variants").select("*")
+]);
+
+if (error) {
+  document.getElementById("list").innerHTML =
+    `<div class="note-box">Couldn't load products: ${esc(error.message)}</div>`;
+  throw error;
+}
+
+// Populate category filter from actual data.
+const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+catEl.innerHTML = `<option value="">All categories</option>` +
+  categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+if (wantCategory) catEl.value = wantCategory;
+
+function variantsFor(id) {
+  return (variants || []).filter(v => v.product_id === id)
+    .sort((a, b) => a.sort_order - b.sort_order);
+}
+
+/**
+ * A variant-priced product advertises its cheapest option, so that's
+ * the figure shown here — matching what a customer sees as "From $X".
+ */
+function headline(p) {
+  const vs = variantsFor(p.id);
+  if (vs.length) {
+    const cheapest = vs.reduce((a, b) => (Number(a.price) <= Number(b.price) ? a : b));
+    return {
+      price: Number(cheapest.price),
+      cost: Number(cheapest.variant_cost || 0),
+      from: vs.length > 1
+    };
+  }
+  return { price: Number(p.price), cost: Number(p.supplier_cost || 0), from: false };
+}
+
+function marginClass(m) {
+  if (m >= 0.5) return "margin-good";
+  if (m >= 0.35) return "margin-ok";
+  return "margin-bad";
+}
+
+function render() {
+  const q = qEl.value.trim().toLowerCase();
+  const status = statusEl.value;
+  const cat = catEl.value;
+
+  const rows = products.filter(p => {
+    if (status && p.status !== status) return false;
+    if (cat && p.category !== cat) return false;
+    if (q) {
+      const hay = [p.name, p.sku, p.supplier_name, p.category]
+        .filter(Boolean).join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById("count").textContent =
+    `${rows.length} of ${products.length} product${products.length === 1 ? "" : "s"}`;
+
+  if (!rows.length) {
+    document.getElementById("list").innerHTML =
+      `<div class="table-wrap"><div class="empty">No products match those filters.</div></div>`;
+    return;
+  }
+
+  document.getElementById("list").innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th class="num">Price</th>
+            <th class="num">Cost</th>
+            <th class="num">Profit</th>
+            <th class="num">Margin</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(p => {
+            const h = headline(p);
+            const { cost, profit, margin } = profitOf(h.price, h.cost, p.shipping_cost);
+            const vs = variantsFor(p.id);
+            return `
+            <tr>
+              <td>
+                <div class="prod-cell">
+                  <img src="${esc(p.image || "")}" alt="" loading="lazy"
+                       onerror="this.style.visibility='hidden'">
+                  <div>
+                    <div class="nm">${esc(p.name)}</div>
+                    <div class="sk">${esc(p.sku)}${vs.length ? ` · ${vs.length} variants` : ""}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="text-transform:capitalize;">${esc(p.category || "—")}</td>
+              <td>${statusPill(p.status)}</td>
+              <td class="num">${h.from ? "from " : ""}${money(h.price)}</td>
+              <td class="num">${money(cost)}</td>
+              <td class="num">${money(profit)}</td>
+              <td class="num ${marginClass(margin)}">${h.price > 0 ? pct(margin) : "—"}</td>
+              <td class="num">
+                <a class="btn-ghost btn-sm" href="product.html?id=${encodeURIComponent(p.id)}">Edit</a>
+              </td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+qEl.addEventListener("input", render);
+statusEl.addEventListener("change", render);
+catEl.addEventListener("change", render);
+document.getElementById("clear").addEventListener("click", () => {
+  qEl.value = ""; statusEl.value = ""; catEl.value = "";
+  render();
+});
+
+render();
+</script>
+
+</body>
+</html>

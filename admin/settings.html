@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Settings — Squishy Society admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="admin-shell"></div>
+
+<div class="admin-container">
+  <div class="page-head">
+    <div>
+      <h1>Settings</h1>
+      <p>Store details and your login.</p>
+    </div>
+    <button class="btn" id="save" type="button">Save</button>
+  </div>
+
+  <div class="card">
+    <h2>Store</h2>
+    <div id="settings-form"><div class="loading">Loading…</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Change password</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label for="pw1">New password</label>
+        <input type="password" id="pw1" autocomplete="new-password">
+        <div class="hint">At least 8 characters.</div>
+      </div>
+      <div class="field">
+        <label for="pw2">Confirm new password</label>
+        <input type="password" id="pw2" autocomplete="new-password">
+      </div>
+    </div>
+    <button class="btn-ghost" id="change-pw" type="button">Update password</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+import { supabase, requireAuth, renderShell, toast, esc, friendlyError } from "./admin.js";
+
+const user = await requireAuth();
+renderShell("settings.html", user);
+
+const FIELDS = [
+  { key: "store_name",  label: "Store name" },
+  { key: "store_email", label: "Store email" },
+  { key: "currency",    label: "Currency" },
+  { key: "country",     label: "Country" },
+  { key: "timezone",    label: "Timezone" }
+];
+
+const { data: rows, error } = await supabase.from("settings").select("*");
+if (error) {
+  document.getElementById("settings-form").innerHTML =
+    `<div class="note-box">Couldn't load settings: ${esc(error.message)}</div>`;
+  throw error;
+}
+
+const current = {};
+(rows || []).forEach(r => { current[r.key] = r.value; });
+
+document.getElementById("settings-form").innerHTML = `
+  <div class="grid-2">
+    ${FIELDS.map(f => `
+      <div class="field">
+        <label for="s-${f.key}">${f.label}</label>
+        <input type="text" id="s-${f.key}" value="${esc(current[f.key] || "")}">
+      </div>`).join("")}
+  </div>`;
+
+document.getElementById("save").addEventListener("click", async () => {
+  const btn = document.getElementById("save");
+  btn.disabled = true; btn.textContent = "Saving…";
+
+  const updates = FIELDS.map(f => ({
+    key: f.key,
+    value: document.getElementById("s-" + f.key).value.trim()
+  }));
+
+  const { error } = await supabase.from("settings").upsert(updates, { onConflict: "key" });
+  toast(error ? friendlyError(error) : "Settings saved.", error ? "err" : "ok");
+
+  btn.disabled = false; btn.textContent = "Save";
+});
+
+document.getElementById("change-pw").addEventListener("click", async () => {
+  const pw1 = document.getElementById("pw1").value;
+  const pw2 = document.getElementById("pw2").value;
+
+  if (pw1.length < 8) { toast("Password needs at least 8 characters.", "err"); return; }
+  if (pw1 !== pw2)    { toast("Those two passwords don't match.", "err"); return; }
+
+  const btn = document.getElementById("change-pw");
+  btn.disabled = true; btn.textContent = "Updating…";
+
+  const { error } = await supabase.auth.updateUser({ password: pw1 });
+  if (error) {
+    toast(friendlyError(error), "err");
+  } else {
+    toast("Password updated.");
+    document.getElementById("pw1").value = "";
+    document.getElementById("pw2").value = "";
+  }
+
+  btn.disabled = false; btn.textContent = "Update password";
+});
+</script>
+
+</body>
+</html>

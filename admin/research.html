@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Research — Squishy Society admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="admin-shell"></div>
+
+<div class="admin-container">
+  <div class="page-head">
+    <div>
+      <h1>Product research</h1>
+      <p id="count">Loading…</p>
+    </div>
+    <a class="btn" href="product.html?new=1">Add idea</a>
+  </div>
+
+  <div class="note-box" style="margin-bottom:16px;">
+    Products you're considering. Nothing here is visible on the shop. When one looks good,
+    change its status to <strong>Draft</strong> to move it into the catalogue — no re-typing.
+  </div>
+
+  <div id="list"><div class="loading">Loading…</div></div>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+import {
+  supabase, requireAuth, renderShell, money, pct, profitOf, esc,
+  RESEARCH_STATUS_LABELS, toast, friendlyError
+} from "./admin.js";
+
+const user = await requireAuth();
+renderShell("research.html", user);
+
+const { data: rows, error } = await supabase
+  .from("products").select("*").eq("status", "research")
+  .order("sort_order", { ascending: true });
+
+if (error) {
+  document.getElementById("list").innerHTML =
+    `<div class="note-box">Couldn't load: ${esc(error.message)}</div>`;
+  throw error;
+}
+
+document.getElementById("count").textContent =
+  `${rows.length} idea${rows.length === 1 ? "" : "s"} being considered`;
+
+if (!rows.length) {
+  document.getElementById("list").innerHTML = `
+    <div class="table-wrap">
+      <div class="empty">
+        Nothing here yet.<br>
+        Set any product's status to <strong>Research</strong> and it'll show up here.
+      </div>
+    </div>`;
+} else {
+  document.getElementById("list").innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Product</th><th>Stage</th><th class="num">Price</th>
+              <th class="num">Cost</th><th class="num">Margin</th><th></th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(p => {
+            const { cost, margin } = profitOf(p.price, p.supplier_cost, p.shipping_cost);
+            const cls = margin >= 0.5 ? "margin-good" : margin >= 0.35 ? "margin-ok" : "margin-bad";
+            return `
+            <tr>
+              <td>
+                <div class="prod-cell">
+                  <img src="${esc(p.image || "")}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+                  <div>
+                    <div class="nm">${esc(p.name)}</div>
+                    <div class="sk">${esc(p.sku)}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${esc(RESEARCH_STATUS_LABELS[p.research_status] || "—")}</td>
+              <td class="num">${money(p.price)}</td>
+              <td class="num">${money(cost)}</td>
+              <td class="num ${cls}">${Number(p.price) > 0 ? pct(margin) : "—"}</td>
+              <td class="num" style="white-space:nowrap;">
+                <button class="btn-ghost btn-sm promote" data-id="${esc(p.id)}">→ Draft</button>
+                <a class="btn-ghost btn-sm" href="product.html?id=${encodeURIComponent(p.id)}">Edit</a>
+              </td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>`;
+
+  // Promoting is just a status change — the record and all its data stay put.
+  document.querySelectorAll(".promote").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const { error } = await supabase.from("products")
+        .update({ status: "draft" }).eq("id", btn.dataset.id);
+      if (error) { toast(friendlyError(error), "err"); btn.disabled = false; return; }
+      toast("Moved to Drafts.");
+      setTimeout(() => location.reload(), 700);
+    });
+  });
+}
+</script>
+
+</body>
+</html>

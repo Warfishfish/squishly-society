@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Dashboard — Squishy Society admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="admin-shell"></div>
+
+<div class="admin-container">
+  <div class="page-head">
+    <div>
+      <h1>Dashboard</h1>
+      <p id="greeting">Loading…</p>
+    </div>
+    <a class="btn" href="import.html">Add product</a>
+  </div>
+
+  <div id="stats" class="stat-row"></div>
+
+  <div class="card">
+    <h2>Catalogue</h2>
+    <div id="catalogue"><div class="loading">Loading…</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Needs attention</h2>
+    <div id="attention"><div class="loading">Loading…</div></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+import {
+  supabase, requireAuth, renderShell, money, pct, profitOf, statusPill, esc
+} from "./admin.js";
+
+const user = await requireAuth();
+renderShell("index.html", user);
+
+document.getElementById("greeting").textContent =
+  "Everything about the shop in one place.";
+
+const { data: products, error } = await supabase
+  .from("products")
+  .select("*")
+  .order("sort_order", { ascending: true });
+
+if (error) {
+  document.getElementById("stats").innerHTML =
+    `<div class="note-box">Couldn't load products: ${esc(error.message)}</div>`;
+  throw error;
+}
+
+const { data: variants } = await supabase.from("product_variants").select("*");
+
+/* ---------- stats ---------- */
+
+const byStatus = {};
+products.forEach(p => { byStatus[p.status] = (byStatus[p.status] || 0) + 1; });
+
+const active = products.filter(p => p.status === "active");
+
+// Average margin across active products, weighted equally.
+// Variant-priced products use their cheapest variant, since that's
+// what the shop advertises as the "From $X" price.
+function headlineFigures(p) {
+  const vs = (variants || []).filter(v => v.product_id === p.id);
+  if (vs.length) {
+    const cheapest = vs.reduce((a, b) => (Number(a.price) <= Number(b.price) ? a : b));
+    return { price: Number(cheapest.price), cost: Number(cheapest.variant_cost || 0) };
+  }
+  return { price: Number(p.price), cost: Number(p.supplier_cost || 0) };
+}
+
+let marginSum = 0, marginCount = 0;
+active.forEach(p => {
+  const f = headlineFigures(p);
+  const { margin } = profitOf(f.price, f.cost, p.shipping_cost);
+  if (f.price > 0) { marginSum += margin; marginCount++; }
+});
+const avgMargin = marginCount ? marginSum / marginCount : 0;
+
+const researchCount = products.filter(p => p.status === "research").length;
+const draftCount = byStatus.draft || 0;
+
+document.getElementById("stats").innerHTML = `
+  <div class="stat">
+    <div class="label">Live products</div>
+    <div class="value">${active.length}</div>
+    <div class="sub">on the shop right now</div>
+  </div>
+  <div class="stat">
+    <div class="label">Average margin</div>
+    <div class="value">${pct(avgMargin)}</div>
+    <div class="sub">across live products</div>
+  </div>
+  <div class="stat">
+    <div class="label">Drafts</div>
+    <div class="value">${draftCount}</div>
+    <div class="sub">not visible to customers</div>
+  </div>
+  <div class="stat">
+    <div class="label">Research</div>
+    <div class="value">${researchCount}</div>
+    <div class="sub">ideas being considered</div>
+  </div>
+`;
+
+/* ---------- catalogue breakdown ---------- */
+
+const cats = {};
+active.forEach(p => { cats[p.category || "—"] = (cats[p.category || "—"] || 0) + 1; });
+
+const catRows = Object.entries(cats)
+  .sort((a, b) => b[1] - a[1])
+  .map(([cat, n]) => `
+    <tr>
+      <td style="text-transform:capitalize;">${esc(cat)}</td>
+      <td class="num">${n}</td>
+      <td class="num">
+        <a class="btn-ghost btn-sm" href="products.html?category=${encodeURIComponent(cat)}">View</a>
+      </td>
+    </tr>`).join("");
+
+const statusRows = Object.entries(byStatus)
+  .sort((a, b) => b[1] - a[1])
+  .map(([s, n]) => `
+    <tr>
+      <td>${statusPill(s)}</td>
+      <td class="num">${n}</td>
+      <td class="num">
+        <a class="btn-ghost btn-sm" href="products.html?status=${encodeURIComponent(s)}">View</a>
+      </td>
+    </tr>`).join("");
+
+document.getElementById("catalogue").innerHTML = `
+  <div class="grid-2" style="gap:20px;">
+    <div>
+      <h3 style="font-size:14px; margin-bottom:8px;">By category</h3>
+      <div class="table-wrap"><table><tbody>${catRows || `<tr><td class="empty">No live products</td></tr>`}</tbody></table></div>
+    </div>
+    <div>
+      <h3 style="font-size:14px; margin-bottom:8px;">By status</h3>
+      <div class="table-wrap"><table><tbody>${statusRows}</tbody></table></div>
+    </div>
+  </div>
+`;
+
+/* ---------- needs attention ---------- */
+// Surfacing real gaps rather than vanity metrics.
+
+const issues = [];
+
+const noSupplier = products.filter(p => p.status !== "archived" && !p.supplier_url);
+if (noSupplier.length) {
+  issues.push({
+    text: `${noSupplier.length} product${noSupplier.length > 1 ? "s have" : " has"} no supplier link yet`,
+    detail: noSupplier.map(p => p.sku).join(", "),
+    href: "products.html"
+  });
+}
+
+const thinMargin = active.filter(p => {
+  const f = headlineFigures(p);
+  const { margin } = profitOf(f.price, f.cost, p.shipping_cost);
+  return f.price > 0 && margin < 0.4;
+});
+if (thinMargin.length) {
+  issues.push({
+    text: `${thinMargin.length} live product${thinMargin.length > 1 ? "s are" : " is"} under 40% margin`,
+    detail: thinMargin.map(p => p.sku).join(", "),
+    href: "products.html?status=active"
+  });
+}
+
+const thinCats = Object.entries(cats).filter(([, n]) => n < 2);
+thinCats.forEach(([cat, n]) => {
+  issues.push({
+    text: `"${cat}" only has ${n} live product${n > 1 ? "s" : ""}`,
+    detail: "A category with one item reads as unfinished to a customer.",
+    href: `products.html?category=${encodeURIComponent(cat)}`
+  });
+});
+
+document.getElementById("attention").innerHTML = issues.length
+  ? `<div class="table-wrap"><table><tbody>${issues.map(i => `
+      <tr>
+        <td>
+          <div style="font-weight:600;">${esc(i.text)}</div>
+          <div style="font-size:12.5px;color:var(--ink-light);">${esc(i.detail)}</div>
+        </td>
+        <td class="num"><a class="btn-ghost btn-sm" href="${i.href}">Open</a></td>
+      </tr>`).join("")}</tbody></table></div>`
+  : `<p style="color:var(--ink-light);margin:0;">Nothing flagged — the catalogue looks healthy.</p>`;
+</script>
+
+</body>
+</html>

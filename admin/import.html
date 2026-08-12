@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Add from URL — Squishy Society admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="admin-shell"></div>
+
+<div class="admin-container">
+  <div class="page-head">
+    <div>
+      <h1>Add from URL</h1>
+      <p>Paste a supplier listing and we'll fill in what we can.</p>
+    </div>
+    <a class="btn-ghost" href="product.html?new=1">Enter manually instead</a>
+  </div>
+
+  <div class="card">
+    <div class="note-box" style="margin-bottom:16px;">
+      <strong>Coming in the next step.</strong> The auto-fill needs a small server function,
+      which goes live once this admin is deployed to Netlify.
+      <br><br>
+      Worth knowing up front: AliExpress actively blocks automated page reads, so auto-fill
+      will often come back partly empty for their listings. When it does, this screen will show
+      you exactly which fields it got and which you need to type — it will never invent a price
+      or a description.
+      <br><br>
+      In the meantime, <a href="product.html?new=1"><strong>adding a product manually</strong></a>
+      works right now, and takes about a minute.
+    </div>
+
+    <div class="field">
+      <label for="url">Supplier listing URL</label>
+      <input type="url" id="url" placeholder="https://www.aliexpress.com/item/…" disabled>
+    </div>
+    <button class="btn" disabled>Fetch details</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+import { requireAuth, renderShell } from "./admin.js";
+const user = await requireAuth();
+renderShell("import.html", user);
+</script>
+
+</body>
+</html>
