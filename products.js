@@ -213,6 +213,8 @@ var PRODUCTS = [
 var CATEGORY_LABELS = {
   all: "All",
   mochi: "Mochi",
+  dumpling: "Dumplings",
+  mystery: "Mystery Boxes",
   keychain: "Keychain",
   prism: "Prism Cubes"
 };
