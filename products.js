@@ -213,7 +213,9 @@ var PRODUCTS = [
 var CATEGORY_LABELS = {
   all: "All",
   mochi: "Mochi",
+  food: "Food Squish",
   dumpling: "Dumplings",
+  animal: "Animals",
   mystery: "Mystery Boxes",
   keychain: "Keychain",
   prism: "Prism Cubes"

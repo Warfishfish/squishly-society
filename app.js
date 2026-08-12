@@ -17,7 +17,7 @@ const sortEl = document.getElementById("sort-select");
    products.js and product-data.js (nothing was deleted) but are hidden
    from tiles, filters, and the main shop grid — reversible if the niche
    changes later. Direct links to those product pages still work. */
-const ACTIVE_CATEGORIES = ["mochi", "dumpling", "mystery", "prism", "keychain"];
+const ACTIVE_CATEGORIES = ["mochi", "food", "dumpling", "animal", "mystery", "prism", "keychain"];
 function nicheProducts() {
   return PRODUCTS.filter(p => ACTIVE_CATEGORIES.indexOf(p.category) !== -1);
 }
@@ -26,7 +26,7 @@ function nicheProducts() {
 const TILE_EMOJI = {
   mochi: "🍡", jumbo: "🐣", animal: "🐱",
   food: "🍞", fidget: "🟣", keychain: "🔑", prism: "🔷",
-  dumpling: "🥟", mystery: "🎁"
+  dumpling: "🥟", mystery: "🎁", animal: "🦆"
 };
 
 function renderTiles() {
