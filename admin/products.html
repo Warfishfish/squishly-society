@@ -6,6 +6,22 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Products — Squishy Society admin</title>
 <link rel="stylesheet" href="admin.css">
+<style>
+  /* Bulk-edit bar. Sticks to the top of the list so it stays reachable
+     when you've scrolled a long way down a selection. */
+  .bulkbar {
+    position: sticky; top: 0; z-index: 5;
+    display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin: 0 0 12px; padding: 10px 14px;
+    background: #fff6fa; border: 1px solid #f0cfe0; border-radius: 12px;
+  }
+  .bulkbar.on { display: flex; }
+  .bulkbar .n { font-weight: 600; }
+  .bulkbar .spacer { flex: 1; }
+  .selcol { width: 34px; text-align: center; }
+  .selcol input { width: auto; margin: 0; cursor: pointer; }
+  tr.sel td { background: #fff8fb; }
+</style>
 </head>
 <body>
 
@@ -40,13 +56,31 @@
     <button class="btn-ghost btn-sm" id="clear" type="button">Clear</button>
   </div>
 
+  <div class="bulkbar" id="bulkbar">
+    <span class="n" id="sel-count">0 selected</span>
+    <label for="bulk-status" style="margin:0;">Change status to</label>
+    <select id="bulk-status" style="max-width:180px;">
+      <option value="">Choose…</option>
+      <option value="active">Active</option>
+      <option value="draft">Draft</option>
+      <option value="hidden">Hidden</option>
+      <option value="out_of_stock">Out of stock</option>
+      <option value="research">Research</option>
+      <option value="archived">Archived</option>
+    </select>
+    <button class="btn btn-sm" id="apply" type="button" disabled>Apply</button>
+    <span class="spacer"></span>
+    <button class="btn-ghost btn-sm" id="unselect" type="button">Clear selection</button>
+  </div>
+
   <div id="list"><div class="loading">Loading…</div></div>
 </div>
 
 <script src="config.js"></script>
 <script type="module">
 import {
-  supabase, requireAuth, renderShell, money, pct, profitOf, statusPill, esc
+  supabase, requireAuth, renderShell, money, pct, profitOf, statusPill, esc,
+  STATUS_LABELS, toast, friendlyError
 } from "./admin.js";
 
 const user = await requireAuth();
@@ -55,6 +89,15 @@ renderShell("products.html", user);
 const qEl = document.getElementById("q");
 const statusEl = document.getElementById("status-filter");
 const catEl = document.getElementById("category-filter");
+
+const bulkBar   = document.getElementById("bulkbar");
+const bulkSel   = document.getElementById("bulk-status");
+const applyBtn  = document.getElementById("apply");
+const selCount  = document.getElementById("sel-count");
+
+/* Selected product ids. Kept outside render() so ticks survive a
+   re-render — filtering or searching doesn't lose your selection. */
+const selected = new Set();
 
 // Prefill filters from the URL so dashboard links land pre-filtered.
 const params = new URLSearchParams(location.search);
@@ -106,12 +149,13 @@ function marginClass(m) {
   return "margin-bad";
 }
 
-function render() {
+/** Rows currently passing the filters — what "select all" applies to. */
+function visibleRows() {
   const q = qEl.value.trim().toLowerCase();
   const status = statusEl.value;
   const cat = catEl.value;
 
-  const rows = products.filter(p => {
+  return products.filter(p => {
     if (status && p.status !== status) return false;
     if (cat && p.category !== cat) return false;
     if (q) {
@@ -121,6 +165,17 @@ function render() {
     }
     return true;
   });
+}
+
+function syncBulkBar() {
+  const n = selected.size;
+  selCount.textContent = `${n} selected`;
+  bulkBar.classList.toggle("on", n > 0);
+  applyBtn.disabled = n === 0 || !bulkSel.value;
+}
+
+function render() {
+  const rows = visibleRows();
 
   document.getElementById("count").textContent =
     `${rows.length} of ${products.length} product${products.length === 1 ? "" : "s"}`;
@@ -128,14 +183,21 @@ function render() {
   if (!rows.length) {
     document.getElementById("list").innerHTML =
       `<div class="table-wrap"><div class="empty">No products match those filters.</div></div>`;
+    syncBulkBar();
     return;
   }
+
+  const allTicked = rows.every(p => selected.has(p.id));
 
   document.getElementById("list").innerHTML = `
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
+            <th class="selcol">
+              <input type="checkbox" id="sel-all" ${allTicked ? "checked" : ""}
+                     title="Select everything shown">
+            </th>
             <th>Product</th>
             <th>Category</th>
             <th>Status</th>
@@ -151,8 +213,12 @@ function render() {
             const h = headline(p);
             const { cost, profit, margin } = profitOf(h.price, h.cost, p.shipping_cost);
             const vs = variantsFor(p.id);
+            const on = selected.has(p.id);
             return `
-            <tr>
+            <tr class="${on ? "sel" : ""}">
+              <td class="selcol">
+                <input type="checkbox" class="rowsel" data-id="${esc(p.id)}" ${on ? "checked" : ""}>
+              </td>
               <td>
                 <div class="prod-cell">
                   <img src="${esc(p.image || "")}" alt="" loading="lazy"
@@ -178,7 +244,93 @@ function render() {
       </table>
     </div>
   `;
+
+  document.getElementById("sel-all").addEventListener("change", e => {
+    rows.forEach(p => e.target.checked ? selected.add(p.id) : selected.delete(p.id));
+    render();
+  });
+
+  document.querySelectorAll(".rowsel").forEach(cb => {
+    cb.addEventListener("change", () => {
+      cb.checked ? selected.add(cb.dataset.id) : selected.delete(cb.dataset.id);
+      cb.closest("tr").classList.toggle("sel", cb.checked);
+      // Re-render only the header tick, so the page doesn't jump under you.
+      const all = visibleRows().every(p => selected.has(p.id));
+      document.getElementById("sel-all").checked = all;
+      syncBulkBar();
+    });
+  });
+
+  syncBulkBar();
 }
+
+/**
+ * A product with no image or no price renders as a broken card on the
+ * shop, so it's held back rather than published. Everything else in the
+ * selection still goes through, and the skipped ones are named.
+ */
+function blocksGoingLive(p) {
+  const h = headline(p);
+  if (!p.image) return "no photo";
+  if (!(h.price > 0)) return "no price";
+  return null;
+}
+
+applyBtn.addEventListener("click", async () => {
+  const target = bulkSel.value;
+  if (!target || !selected.size) return;
+
+  const chosen = products.filter(p => selected.has(p.id));
+  let toChange = chosen;
+  let skipped = [];
+
+  if (target === "active") {
+    skipped  = chosen.filter(p => blocksGoingLive(p));
+    toChange = chosen.filter(p => !blocksGoingLive(p));
+  }
+
+  if (!toChange.length) {
+    toast(`Nothing published — ${skipped.map(p => `${p.sku} has ${blocksGoingLive(p)}`).join(", ")}.`, "err");
+    return;
+  }
+
+  applyBtn.disabled = true;
+  applyBtn.textContent = "Applying…";
+
+  const { error } = await supabase.from("products")
+    .update({ status: target })
+    .in("id", toChange.map(p => p.id));
+
+  applyBtn.textContent = "Apply";
+
+  if (error) {
+    toast(friendlyError(error), "err");
+    syncBulkBar();
+    return;
+  }
+
+  // Keep the local copy in step so the table updates without a reload.
+  toChange.forEach(p => { p.status = target; });
+  selected.clear();
+  bulkSel.value = "";
+
+  const label = STATUS_LABELS[target] || target;
+  let msg = `${toChange.length} product${toChange.length === 1 ? "" : "s"} set to ${label}.`;
+  if (target === "active") msg += " Live on the shop now.";
+  if (skipped.length) {
+    msg += ` Held back: ${skipped.map(p => `${p.sku} (${blocksGoingLive(p)})`).join(", ")}.`;
+  }
+  toast(msg, skipped.length ? "err" : "ok");
+
+  render();
+});
+
+bulkSel.addEventListener("change", syncBulkBar);
+document.getElementById("unselect").addEventListener("click", () => {
+  selected.clear();
+  bulkSel.value = "";
+  render();
+});
 
 qEl.addEventListener("input", render);
 statusEl.addEventListener("change", render);
