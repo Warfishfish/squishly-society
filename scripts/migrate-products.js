@@ -99,7 +99,7 @@ function build() {
     lines.push("  sku, name, category, description,");
     lines.push("  price, supplier_cost, shipping_cost,");
     lines.push("  supplier_name, supplier_url,");
-    lines.push("  image, gallery,");
+    lines.push("  image, gallery, variant_label,");
     lines.push("  status,");
     lines.push("  source_rating, source_reviews, source_orders, source_tags, source_quotes,");
     lines.push("  is_mystery, is_new_drop, sort_order");
@@ -108,7 +108,7 @@ function build() {
     lines.push(`  ${sqlNum(p.price)}, ${sqlNum(p.supplierCost)}, ${sqlNum(p.shippingCost || 0)},`);
     // Everything sourced so far comes from AliExpress sellers.
     lines.push(`  ${sqlStr(p.sourceUrl ? "AliExpress" : null)}, ${sqlStr(p.sourceUrl)},`);
-    lines.push(`  ${sqlStr(p.image)}, ${sqlTextArray(d.gallery)},`);
+    lines.push(`  ${sqlStr(p.image)}, ${sqlTextArray(d.gallery)}, ${sqlStr(opts.label)},`);
     lines.push(`  'active',`);
     lines.push(
       `  ${sqlNum(sup.rating != null ? sup.rating : p.sourceRating)}, ` +
@@ -130,6 +130,7 @@ function build() {
     lines.push("  supplier_url = excluded.supplier_url,");
     lines.push("  image = excluded.image,");
     lines.push("  gallery = excluded.gallery,");
+    lines.push("  variant_label = excluded.variant_label,");
     lines.push("  source_rating = excluded.source_rating,");
     lines.push("  source_reviews = excluded.source_reviews,");
     lines.push("  source_orders = excluded.source_orders,");

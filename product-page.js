@@ -201,4 +201,8 @@ function renderRelated(p) {
     </a>`).join("");
 }
 
-document.addEventListener("DOMContentLoaded", renderProductPage);
+/* Wait for the live catalogue as well as the DOM, so the page doesn't
+   render a stale price and then correct itself. Falls back to plain
+   DOMContentLoaded if data-source.js isn't present. */
+(window.whenCatalogueReady ||
+  (fn => document.addEventListener("DOMContentLoaded", fn)))(renderProductPage);

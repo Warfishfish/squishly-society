@@ -42,7 +42,7 @@
      servers. That works today but those links can break without warning.
    =========================================================== */
 
-const PRODUCTS = [
+var PRODUCTS = [
   {
     id: "sq-001",
     name: "Coconut Mochi Squeeze Ball",
@@ -210,7 +210,7 @@ const PRODUCTS = [
   }
 ];
 
-const CATEGORY_LABELS = {
+var CATEGORY_LABELS = {
   all: "All",
   mochi: "Mochi",
   keychain: "Keychain",

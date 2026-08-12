@@ -52,6 +52,10 @@ create table if not exists products (
   image           text,                          -- main photo
   gallery         text[] default '{}',           -- extra photos
 
+  -- what this product's options are called on the shop,
+  -- e.g. "Size", "Pack size", "Colour / style"
+  variant_label   text,
+
   -- status
   -- draft       = being worked on, not on the shop
   -- active      = live on the shop
@@ -216,6 +220,7 @@ create view public_products as
     p.price,
     p.image,
     p.gallery,
+    p.variant_label,
     p.source_rating,
     p.source_reviews,
     p.source_orders,

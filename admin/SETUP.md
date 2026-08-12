@@ -84,7 +84,23 @@ Sign in with the email and password from step 3.
 
 ---
 
-## Important: the shop doesn't read the database yet
+## The shop now reads the database
+
+Editing a product in the admin changes squishly.netlify.app within seconds of saving.
+No code, no git, no deploy.
+
+One thing that trips people up: **only products set to `Active` appear on the shop.** If you
+add something and can't see it, check its status first.
+
+If the database is ever unreachable — an outage, or your wifi drops — the shop quietly falls
+back to the copy saved in `products.js` rather than showing a customer an empty page. Prices
+could be briefly out of date in that situation, which is a much smaller problem than an empty
+shop. That fallback copy refreshes whenever we regenerate it.
+
+---
+
+<details>
+<summary>Old note — the shop used to be separate (kept for reference)</summary>
 
 Right now the admin and the shop are two separate things:
 
@@ -96,6 +112,8 @@ nothing customer-facing can break while we get the admin right.
 
 Connecting them is the next step. Once that's done, an edit in the admin changes the live shop
 within seconds.
+
+</details>
 
 ---
 

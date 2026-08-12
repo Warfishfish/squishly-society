@@ -143,8 +143,15 @@ if (newsletterForm) {
   });
 }
 
-/* ---------- Init ---------- */
-document.addEventListener("DOMContentLoaded", () => {
+/* ---------- Init ----------
+   whenCatalogueReady waits for BOTH the live catalogue and the DOM,
+   so the grid renders once with real prices rather than flashing the
+   built-in copy first. Falls back to plain DOMContentLoaded if
+   data-source.js isn't on the page. */
+const onReady = window.whenCatalogueReady ||
+  (fn => document.addEventListener("DOMContentLoaded", fn));
+
+onReady(() => {
   renderTiles();
   renderFilters();
   renderProducts();

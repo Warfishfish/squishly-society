@@ -59,7 +59,7 @@ if (!isNew) {
   product = {
     sku: "", name: "", category: "mochi", description: "",
     price: 0, supplier_cost: 0, shipping_cost: 0,
-    supplier_name: "", supplier_url: "", image: "", gallery: [],
+    supplier_name: "", supplier_url: "", image: "", gallery: [], variant_label: "",
     status: "draft", research_status: null,
     source_rating: null, source_reviews: null, source_orders: "",
     source_tags: [], source_quotes: [],
@@ -156,6 +156,16 @@ document.getElementById("form-area").innerHTML = `
     <p class="hint" style="margin-top:-4px;margin-bottom:12px;">
       Sizes or pack counts that cost different amounts. Leave empty for a single-price product.
     </p>
+    <div class="field" style="max-width:320px;">
+      <label for="f-variant-label">What are these options called?</label>
+      <input type="text" id="f-variant-label" value="${esc(product.variant_label || "")}"
+             placeholder="Size" list="vlabel-list">
+      <datalist id="vlabel-list">
+        <option value="Size"><option value="Colour"><option value="Colour / style">
+        <option value="Pack size"><option value="Key Count"><option value="Option">
+      </datalist>
+      <div class="hint">Shown above the buttons on the product page.</div>
+    </div>
     <div id="variant-list"></div>
     <button class="btn-ghost btn-sm" id="add-variant" type="button">+ Add variant</button>
   </div>
@@ -340,6 +350,7 @@ document.getElementById("save").addEventListener("click", async () => {
     supplier_url: document.getElementById("f-supplier-url").value.trim() || null,
     image: document.getElementById("f-image").value.trim() || null,
     gallery: linesToArray("f-gallery"),
+    variant_label: document.getElementById("f-variant-label").value.trim() || null,
     status: document.getElementById("f-status").value,
     research_status: document.getElementById("f-research").value || null,
     source_rating: document.getElementById("f-rating").value === "" ? null : Number(document.getElementById("f-rating").value),

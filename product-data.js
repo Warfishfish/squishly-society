@@ -3,7 +3,7 @@
    not Squishy Society. They must always be displayed labelled as such.
    Trimmed to the Mochi/Prism Cubes/Keychain niche — see products.js header. */
 
-const PRODUCT_DATA = {
+var PRODUCT_DATA = {
  "sq-011": {
   "supplier": {
    "rating": 4.9,
@@ -443,5 +443,5 @@ const PRODUCT_DATA = {
  }
 };
 
-const MYSTERY_IDS = ["sq-023"];
-const NEW_DROP_IDS = ["sq-063"];
+var MYSTERY_IDS = ["sq-023"];
+var NEW_DROP_IDS = ["sq-063"];
