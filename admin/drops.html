@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Just landed — Squishy Society admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="admin-shell"></div>
+
+<div class="admin-container">
+  <div class="page-head">
+    <div>
+      <h1>Just landed</h1>
+      <p id="count">Loading…</p>
+    </div>
+    <a class="btn-ghost" href="../index.html#drops" target="_blank" rel="noopener">See it on the shop ↗</a>
+  </div>
+
+  <div class="note-box" style="margin-bottom:16px;">
+    The row of products near the top of the homepage, and the “Just landed” badge on
+    product cards. Add or remove anything here — changes show on the shop straight away,
+    no publish step.
+  </div>
+
+  <h2 style="margin:24px 0 10px;">In the section now</h2>
+  <div id="in"><div class="loading">Loading…</div></div>
+
+  <h2 style="margin:32px 0 10px;">Everything else</h2>
+  <p class="hint" style="margin:-6px 0 12px;">
+    Only Active products can appear. Drafts are listed so you can flag them ahead of time —
+    they'll slot in by themselves the moment you make them Active.
+  </p>
+  <div id="out"><div class="loading">Loading…</div></div>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+import {
+  supabase, requireAuth, renderShell, money, esc, toast, friendlyError
+} from "./admin.js";
+
+const user = await requireAuth();
+renderShell("drops.html", user);
+
+/* Archived products are excluded — they're gone from the shop anyway, and listing
+   them here would just be noise. Research items can't be shown on the shop at all,
+   so they're excluded too. */
+const SELECTABLE = ["active", "draft", "hidden", "out_of_stock"];
+
+async function load() {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, sku, name, image, price, category, status, is_new_drop")
+    .in("status", SELECTABLE)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    document.getElementById("in").innerHTML =
+      `<div class="note-box">Couldn't load: ${esc(error.message)}</div>`;
+    document.getElementById("out").innerHTML = "";
+    throw error;
+  }
+  return data;
+}
+
+function statusNote(p) {
+  if (p.status === "active") return "";
+  if (p.status === "draft")  return ` <span class="private-tag">draft — not on the shop yet</span>`;
+  if (p.status === "hidden") return ` <span class="private-tag">hidden</span>`;
+  return ` <span class="private-tag">${esc(p.status.replace(/_/g, " "))}</span>`;
+}
+
+function rowHTML(p, action) {
+  return `
+    <tr>
+      <td>
+        <div class="prod-cell">
+          <img src="${esc(p.image || "")}" alt="" loading="lazy"
+               onerror="this.style.visibility='hidden'">
+          <div>
+            <div class="nm">${esc(p.name)}${statusNote(p)}</div>
+            <div class="sk">${esc(p.sku)}</div>
+          </div>
+        </div>
+      </td>
+      <td style="text-transform:capitalize;">${esc(p.category || "—")}</td>
+      <td class="num">${money(p.price)}</td>
+      <td class="num" style="white-space:nowrap;">
+        <button class="btn-ghost btn-sm toggle"
+                data-id="${esc(p.id)}"
+                data-on="${action === "add" ? "1" : "0"}">
+          ${action === "add" ? "+ Add" : "Remove"}
+        </button>
+        <a class="btn-ghost btn-sm" href="product.html?id=${encodeURIComponent(p.id)}">Edit</a>
+      </td>
+    </tr>`;
+}
+
+function tableHTML(rows, action, emptyMsg) {
+  if (!rows.length) {
+    return `<div class="table-wrap"><div class="empty">${emptyMsg}</div></div>`;
+  }
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Product</th><th>Category</th><th class="num">Price</th><th></th></tr>
+        </thead>
+        <tbody>${rows.map(p => rowHTML(p, action)).join("")}</tbody>
+      </table>
+    </div>`;
+}
+
+function render(all) {
+  const inSection  = all.filter(p => p.is_new_drop);
+  const outSection = all.filter(p => !p.is_new_drop);
+
+  // Only Active ones actually reach a customer, so that's the number that matters.
+  const liveCount = inSection.filter(p => p.status === "active").length;
+  const flagged   = inSection.length - liveCount;
+
+  document.getElementById("count").textContent =
+    liveCount === 0
+      ? (flagged
+          ? `Nothing showing on the shop yet — ${flagged} flagged but not Active`
+          : "Nothing in this section yet")
+      : `${liveCount} showing on the shop` +
+        (flagged ? `, ${flagged} flagged but not Active yet` : "");
+
+  document.getElementById("in").innerHTML = tableHTML(
+    inSection, "remove",
+    "Nothing here yet. Add something from the list below."
+  );
+  document.getElementById("out").innerHTML = tableHTML(
+    outSection, "add",
+    "Every product is already in the section."
+  );
+
+  document.querySelectorAll(".toggle").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const on = btn.dataset.on === "1";
+      btn.disabled = true;
+      btn.textContent = on ? "Adding…" : "Removing…";
+
+      const { error } = await supabase.from("products")
+        .update({ is_new_drop: on }).eq("id", btn.dataset.id);
+
+      if (error) {
+        toast(friendlyError(error), "err");
+        btn.disabled = false;
+        btn.textContent = on ? "+ Add" : "Remove";
+        return;
+      }
+      toast(on ? "Added to Just landed." : "Removed from Just landed.");
+      render(await load());
+    });
+  });
+}
+
+render(await load());
+</script>
+
+</body>
+</html>
