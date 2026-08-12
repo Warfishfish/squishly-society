@@ -214,6 +214,7 @@ var CATEGORY_LABELS = {
   all: "All",
   mochi: "Mochi",
   food: "Food Squish",
+  giant: "Giants",
   dumpling: "Dumplings",
   animal: "Animals",
   mystery: "Mystery Boxes",
