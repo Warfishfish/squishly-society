@@ -11,6 +11,17 @@ const filtersEl = document.getElementById("filters");
 const countEl = document.getElementById("product-count");
 const sortEl = document.getElementById("sort-select");
 
+/* ---------- Active niche ----------
+   Squishy Society committed to Mochi, Prism Cubes, and Keychain as its
+   focus categories. Jumbo/Animals/Food-shaped/Fidget products stay in
+   products.js and product-data.js (nothing was deleted) but are hidden
+   from tiles, filters, and the main shop grid — reversible if the niche
+   changes later. Direct links to those product pages still work. */
+const ACTIVE_CATEGORIES = ["mochi", "prism", "keychain"];
+function nicheProducts() {
+  return PRODUCTS.filter(p => ACTIVE_CATEGORIES.indexOf(p.category) !== -1);
+}
+
 /* ---------- Category tiles ---------- */
 const TILE_EMOJI = {
   mochi: "🍡", jumbo: "🐣", animal: "🐱",
@@ -20,7 +31,7 @@ const TILE_EMOJI = {
 function renderTiles() {
   const row = document.getElementById("tile-row");
   if (!row) return;
-  const cats = [...new Set(PRODUCTS.map(p => p.category))];
+  const cats = ACTIVE_CATEGORIES.filter(c => PRODUCTS.some(p => p.category === c));
   row.innerHTML = cats.map(c => {
     const n = PRODUCTS.filter(p => p.category === c).length;
     const pic = PRODUCTS.find(p => p.category === c);
@@ -49,7 +60,7 @@ function renderTiles() {
 /* ---------- Filters ---------- */
 function renderFilters() {
   if (!filtersEl) return;
-  const cats = ["all", ...new Set(PRODUCTS.map(p => p.category))];
+  const cats = ["all", ...ACTIVE_CATEGORIES.filter(c => PRODUCTS.some(p => p.category === c))];
   filtersEl.innerHTML = cats.map(c => `
     <button class="filter-btn ${c === activeFilter ? "active" : ""}" data-cat="${c}">
       ${CATEGORY_LABELS[c] || c}
@@ -103,7 +114,7 @@ function sortList(list) {
 function renderProducts() {
   if (!grid) return;
   const list = sortList(
-    activeFilter === "all" ? PRODUCTS : PRODUCTS.filter(p => p.category === activeFilter)
+    activeFilter === "all" ? nicheProducts() : nicheProducts().filter(p => p.category === activeFilter)
   );
   grid.innerHTML = list.map(cardHTML).join("");
   if (countEl) {
@@ -115,7 +126,9 @@ function renderProducts() {
 function renderRow(elId, ids) {
   const el = document.getElementById(elId);
   if (!el) return;
-  const items = ids.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+  const items = ids
+    .map(id => PRODUCTS.find(p => p.id === id))
+    .filter(p => p && ACTIVE_CATEGORIES.indexOf(p.category) !== -1);
   if (!items.length) { el.closest("section").style.display = "none"; return; }
   el.innerHTML = items.map(cardHTML).join("");
 }

@@ -115,7 +115,7 @@ function renderProductPage() {
             <span class="supplier-score">${starRow(sup.rating)} ${sup.rating.toFixed(1)}</span>
           </div>
           <p class="supplier-sub">
-            ${sup.reviews.toLocaleString()} AliExpress reviews from the <em>source listing</em> we order this product from —
+            ${sup.reviews.toLocaleString()} supplier reviews from the <em>source listing</em> we order this product from —
             not yet our own. We're a new store and haven't collected our own customer reviews here.
           </p>
           ${sup.quotes && sup.quotes.length ? `
@@ -123,7 +123,7 @@ function renderProductPage() {
             ${sup.quotes.map(q => `
               <div class="squote">
                 <p>"${q.text.replace(/"/g, "&quot;")}"</p>
-                <span class="squote-meta">${q.author ? q.author + " · " : ""}AliExpress buyer${q.variant ? " · " + q.variant : ""}</span>
+                <span class="squote-meta">${q.author ? q.author + " · " : ""}Supplier buyer${q.variant ? " · " + q.variant : ""}</span>
               </div>`).join("")}
           </div>` : ""}
           ${sup.tags && sup.tags.length ? `
