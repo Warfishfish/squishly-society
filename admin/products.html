@@ -21,6 +21,18 @@
   .selcol { width: 34px; text-align: center; }
   .selcol input { width: auto; margin: 0; cursor: pointer; }
   tr.sel td { background: #fff8fb; }
+
+  /* Click-to-edit numbers. The dotted underline is the affordance —
+     without it nobody discovers the cell is editable. */
+  .editable { cursor: text; border-bottom: 1px dashed #d9b8ca; }
+  .editable:hover { background: #fff2f8; }
+  .cell-input {
+    width: 88px; padding: 2px 6px; margin: 0;
+    text-align: right; font: inherit;
+    border: 1px solid #e05a9b; border-radius: 6px; background: #fff;
+  }
+  td.saving { opacity: .5; }
+  .locked { color: #a2939d; cursor: default; }
 </style>
 </head>
 <body>
@@ -72,6 +84,11 @@
     <span class="spacer"></span>
     <button class="btn-ghost btn-sm" id="unselect" type="button">Clear selection</button>
   </div>
+
+  <p class="hint" style="margin:0 0 10px;">
+    Click any <strong>Price</strong> or <strong>Cost</strong> to change it — Enter saves, Escape cancels.
+    Profit and margin update as you type.
+  </p>
 
   <div id="list"><div class="loading">Loading…</div></div>
 </div>
@@ -231,10 +248,21 @@ function render() {
               </td>
               <td style="text-transform:capitalize;">${esc(p.category || "—")}</td>
               <td>${statusPill(p.status)}</td>
-              <td class="num">${h.from ? "from " : ""}${money(h.price)}</td>
-              <td class="num">${money(cost)}</td>
-              <td class="num">${money(profit)}</td>
-              <td class="num ${marginClass(margin)}">${h.price > 0 ? pct(margin) : "—"}</td>
+              <td class="num">${
+                vs.length
+                  ? `<span class="locked" title="Priced per variant — open Edit to change">from ${money(h.price)}</span>`
+                  : `<span class="editable" data-id="${esc(p.id)}" data-field="price">${money(h.price)}</span>`
+              }</td>
+              <td class="num">${
+                vs.length
+                  ? `<span class="locked" title="Costed per variant — open Edit to change">${money(cost)}</span>`
+                  : `<span class="editable" data-id="${esc(p.id)}" data-field="supplier_cost">${money(Number(p.supplier_cost || 0))}</span>` +
+                    (Number(p.shipping_cost) > 0
+                      ? `<span class="hint" style="margin-left:4px;" title="Shipping, included in profit and margin">+${money(Number(p.shipping_cost))}</span>`
+                      : "")
+              }</td>
+              <td class="num cell-profit">${money(profit)}</td>
+              <td class="num cell-margin ${marginClass(margin)}">${h.price > 0 ? pct(margin) : "—"}</td>
               <td class="num">
                 <a class="btn-ghost btn-sm" href="product.html?id=${encodeURIComponent(p.id)}">Edit</a>
               </td>
@@ -261,7 +289,123 @@ function render() {
     });
   });
 
+  wireInlineEdit();
   syncBulkBar();
+}
+
+/* ---------- click-to-edit price and cost ----------
+   Editing in place rather than opening the product page, because
+   repricing is something you do across many rows at once. Only
+   single-price products are editable here; anything with variants
+   has to be changed on its own page, where each variant is visible. */
+
+function rowOf(el) { return el.closest("tr"); }
+
+/** Recomputes the profit and margin cells for one row, without a re-render. */
+function refreshDerived(tr, p) {
+  const h = headline(p);
+  const { profit, margin } = profitOf(h.price, h.cost, p.shipping_cost);
+  const profitEl = tr.querySelector(".cell-profit");
+  const marginEl = tr.querySelector(".cell-margin");
+  if (profitEl) profitEl.textContent = money(profit);
+  if (marginEl) {
+    marginEl.textContent = h.price > 0 ? pct(margin) : "—";
+    marginEl.className = "num cell-margin " + marginClass(margin);
+  }
+}
+
+function wireInlineEdit() {
+  document.querySelectorAll(".editable").forEach(span => {
+    span.addEventListener("click", () => {
+      if (span.querySelector("input")) return;          // already editing
+
+      const p = products.find(x => x.id === span.dataset.id);
+      if (!p) return;
+      const field = span.dataset.field;
+      const original = Number(p[field] || 0);
+      const tr = rowOf(span);
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.step = "0.01";
+      input.min = "0";
+      input.className = "cell-input";
+      input.value = original.toFixed(2);
+
+      const restore = value => {
+        span.textContent = money(Number(value));
+      };
+
+      span.textContent = "";
+      span.appendChild(input);
+      input.focus();
+      input.select();
+
+      // Live feedback while typing — you can see the margin move.
+      input.addEventListener("input", () => {
+        const preview = { ...p, [field]: Number(input.value || 0) };
+        refreshDerived(tr, preview);
+      });
+
+      let done = false;
+
+      const cancel = () => {
+        if (done) return;
+        done = true;
+        restore(original);
+        refreshDerived(tr, p);
+      };
+
+      const commit = async () => {
+        if (done) return;
+        const next = Number(input.value);
+
+        if (!isFinite(next) || next < 0) {
+          toast("That needs to be a number, zero or more.", "err");
+          cancel();
+          return;
+        }
+        if (field === "price" && next === 0 && p.status === "active") {
+          toast("A live product can't be priced at zero. Set it to Draft first.", "err");
+          cancel();
+          return;
+        }
+        if (next === original) { cancel(); return; }
+
+        done = true;
+        const cell = span.closest("td");
+        cell.classList.add("saving");
+        restore(next);
+
+        const { error } = await supabase.from("products")
+          .update({ [field]: next }).eq("id", p.id);
+
+        cell.classList.remove("saving");
+
+        if (error) {
+          toast(friendlyError(error), "err");
+          restore(original);
+          refreshDerived(tr, p);
+          return;
+        }
+
+        p[field] = next;                    // keep the local copy in step
+        refreshDerived(tr, p);
+
+        const { margin } = profitOf(headline(p).price, headline(p).cost, p.shipping_cost);
+        let msg = `${p.sku} ${field === "price" ? "price" : "cost"} set to ${money(next)}.`;
+        if (margin < 0)      msg += " That's a LOSS on every sale.";
+        else if (margin < 0.35) msg += ` Margin is now only ${pct(margin)}.`;
+        toast(msg, margin < 0.35 ? "err" : "ok");
+      };
+
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter")  { e.preventDefault(); commit(); }
+        if (e.key === "Escape") { e.preventDefault(); cancel(); }
+      });
+      input.addEventListener("blur", commit);
+    });
+  });
 }
 
 /**
