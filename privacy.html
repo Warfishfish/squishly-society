@@ -26,13 +26,6 @@
 <section class="section">
   <div class="container" style="max-width:760px;">
     <h1>Privacy Policy</h1>
-    <p style="background:#fff3d6;padding:14px 18px;border-radius:12px;">
-      ⚠️ <strong>Drafted for your actual setup</strong> (Netlify hosting, AliExpress-sourced supplier
-      shipping, and whichever payment provider you connect) — but once you've picked your final payment
-      tool (Snipcart or Stripe) and any analytics/email marketing tool, double-check this still matches
-      exactly. If you're under $3M annual turnover you may be exempt from the Australian Privacy Act, but
-      most payment providers (like Stripe) will still require you to have a policy — see the README.
-    </p>
 
     <h2>What we collect</h2>
     <p>When you place an order, we collect your name, email, shipping address, and order details. If you
@@ -52,18 +45,18 @@
 
     <h2>Contact</h2>
     <p>Questions about your data: <a href="mailto:squishysocietyshop@gmail.com">squishysocietyshop@gmail.com</a></p>
-    <p><em>⚠️ Swap in your real contact email above before this goes live.</em></p>
   </div>
 </section>
 
 <footer>
   <div class="container">
     <div class="footer-bottom">
-      © <span id="year"></span> Squishy Society. This is a demo storefront — see the README for how to launch it for real.
+      © <span id="year"></span> Squishy Society<span data-hide-empty> · ABN <span data-text="site_abn"></span></span>
     </div>
   </div>
 </footer>
 
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+<script src="site-text.js"></script>
 </body>
 </html>

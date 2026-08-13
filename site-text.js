@@ -27,6 +27,16 @@
       const v = window.SITE_TEXT[el.getAttribute("data-text")];
       if (typeof v === "string" && v.trim() !== "") el.textContent = v;
     });
+
+    /* An element marked data-hide-empty disappears entirely when the
+       [data-text] inside it has no value. Used for the ABN in the
+       footer: rather than printing a bare "· ABN", the whole fragment
+       vanishes until a real number is saved in Admin → Site text. */
+    scope.querySelectorAll("[data-hide-empty]").forEach(el => {
+      const target = el.matches("[data-text]") ? el : el.querySelector("[data-text]");
+      const filled = target && target.textContent.trim() !== "";
+      el.style.display = filled ? "" : "none";
+    });
   };
 
   /** Look up one key, falling back to the wording passed in. */

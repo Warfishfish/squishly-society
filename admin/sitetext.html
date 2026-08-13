@@ -59,6 +59,13 @@ renderShell("sitetext.html", user);
    and a fresh install look identical. */
 const GROUPS = [
   {
+    title: "Business details",
+    hint: "Shown in the footer of every page. Australian shoppers look for an ABN — it is one of the cheapest trust signals you have. Leave it blank and the footer simply omits it rather than showing an empty label.",
+    fields: [
+      { key: "site_abn", label: "ABN", def: "" }
+    ]
+  },
+  {
     title: "Homepage — hero",
     hint: "The first thing anyone sees.",
     fields: [

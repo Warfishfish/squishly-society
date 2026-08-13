@@ -153,7 +153,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      © <span id="year"></span> Squishy Society · ABN [add your ABN here] · Demo storefront — see README before launch.
+      © <span id="year"></span> Squishy Society<span data-hide-empty> · ABN <span data-text="site_abn"></span></span>
     </div>
   </div>
 </footer>
@@ -211,5 +211,6 @@ document.getElementById("contact-form").addEventListener("submit", e => {
   note.textContent = "Opening your email app with the message ready to send…";
 });
 </script>
+<script src="site-text.js"></script>
 </body>
 </html>

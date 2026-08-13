@@ -27,20 +27,11 @@
   <div class="container" style="max-width:760px;">
     <h1>Shipping &amp; Returns</h1>
 
-    <p style="background:#fff3d6;padding:14px 18px;border-radius:12px;">
-      ⚠️ <strong>Drafted for you, not legal advice.</strong> The content below reflects your actual
-      setup (AliExpress sourcing, manual fulfillment, Australia-wide delivery), but before you go live
-      it's worth a quick check against the Australian Consumer Law (ACL) — in particular the consumer
-      guarantees section below, which you can't contract out of. See the README for where to get proper advice.
-    </p>
-
     <h2>Shipping times</h2>
     <p>Orders are placed with our supplier within 1–3 business days of you ordering. From there, delivery
       to Australian addresses typically takes <strong>12–25 business days</strong>, depending on your
       location and the specific item — some suppliers ship faster than others. We'll always give you a
       tracking number so you can follow the actual progress rather than guessing.</p>
-    <p><em>[Once you've picked real suppliers, sanity-check this range against their actual stated
-      shipping times — some AliExpress listings genuinely ship faster or slower than this default.]</em></p>
 
     <h2>Order tracking</h2>
     <p>Once your order has been placed with our supplier and dispatched, we'll email you a tracking
@@ -61,8 +52,6 @@
       provided the item is unused and in its original packaging. You'll need to cover return postage, and
       once we receive the item back we'll refund the item price (not the original shipping cost) within
       5 business days.</p>
-    <p><em>[This is optional under Australian law and entirely your call — adjust the window, condition
-      requirements, or who pays postage if you'd rather run it differently.]</em></p>
 
     <h2>Lost or delayed parcels</h2>
     <p>If tracking shows no movement for 10 business days past the estimated delivery window above, get
@@ -75,11 +64,12 @@
 <footer>
   <div class="container">
     <div class="footer-bottom">
-      © <span id="year"></span> Squishy Society. This is a demo storefront — see the README for how to launch it for real.
+      © <span id="year"></span> Squishy Society<span data-hide-empty> · ABN <span data-text="site_abn"></span></span>
     </div>
   </div>
 </footer>
 
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+<script src="site-text.js"></script>
 </body>
 </html>
