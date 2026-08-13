@@ -33,6 +33,19 @@
   }
   td.saving { opacity: .5; }
   .locked { color: #a2939d; cursor: default; }
+
+  .statbar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin: 0 0 14px;
+  }
+  .stat {
+    flex: 1 1 150px; min-width: 140px;
+    padding: 10px 14px;
+    background: #fff; border: 1px solid #f0e0e9; border-radius: 12px;
+  }
+  .stat .k { font-size: 12px; color: #8a7d86; margin-bottom: 3px; }
+  .stat .v { font-size: 21px; font-weight: 700; line-height: 1.1; }
+  .stat .s { font-size: 11px; color: #a2939d; margin-top: 3px; }
 </style>
 </head>
 <body>
@@ -50,6 +63,8 @@
       <a class="btn" href="product.html?new=1">New product</a>
     </div>
   </div>
+
+  <div class="statbar" id="statbar"></div>
 
   <div class="toolbar">
     <input type="text" id="q" placeholder="Search name, SKU or supplier…">
@@ -191,8 +206,86 @@ function syncBulkBar() {
   applyBtn.disabled = n === 0 || !bulkSel.value;
 }
 
+/* ---------- margin summary ----------
+   Two different averages, because they answer different questions and
+   disagree by several points on this catalogue.
+
+   "Average margin" treats every product equally — it tells you whether
+   your PRICING RULE is healthy across the range.
+
+   "Blended margin" is total profit over total revenue if you sold one
+   of everything. It is weighted towards expensive products, so it is
+   closer to what you would actually bank. A catalogue of cheap
+   high-margin keychains and pricey thin-margin giants will show a
+   much lower blended figure — and that gap is the useful signal. */
+
+function summarise(list) {
+  const priced = list.filter(p => headline(p).price > 0);
+  if (!priced.length) return null;
+
+  let sumMargin = 0, sumRevenue = 0, sumProfit = 0, sumPrice = 0;
+
+  priced.forEach(p => {
+    const h = headline(p);
+    const { profit, margin } = profitOf(h.price, h.cost, p.shipping_cost);
+    sumMargin  += margin;
+    sumRevenue += h.price;
+    sumProfit  += profit;
+    sumPrice   += h.price;
+  });
+
+  return {
+    n: priced.length,
+    avgMargin: sumMargin / priced.length,
+    blended: sumRevenue > 0 ? sumProfit / sumRevenue : 0,
+    avgPrice: sumPrice / priced.length,
+    thin: priced.filter(p => {
+      const h = headline(p);
+      return profitOf(h.price, h.cost, p.shipping_cost).margin < 0.40;
+    }).length
+  };
+}
+
+function statTile(key, value, cls, sub) {
+  return `<div class="stat">
+    <div class="k">${esc(key)}</div>
+    <div class="v ${cls || ""}">${value}</div>
+    ${sub ? `<div class="s">${esc(sub)}</div>` : ""}
+  </div>`;
+}
+
+function renderStats(filtered) {
+  const el = document.getElementById("statbar");
+  if (!el) return;
+
+  const live = summarise(products.filter(p => p.status === "active"));
+  const view = summarise(filtered);
+
+  if (!live) {
+    el.innerHTML = statTile("Live on the shop", "—", "", "Nothing is Active yet");
+  } else {
+    el.innerHTML =
+      statTile("Live on the shop", live.n,
+               "", `avg price ${money(live.avgPrice)}`) +
+      statTile("Average margin", pct(live.avgMargin),
+               marginClass(live.avgMargin), "across live products") +
+      statTile("Blended margin", pct(live.blended),
+               marginClass(live.blended), "one of everything sold") +
+      statTile("Under 40%", live.thin,
+               live.thin ? "margin-bad" : "margin-good",
+               live.thin ? "live products needing a look" : "nothing thin");
+  }
+
+  // Only worth a second line when a filter is actually narrowing things.
+  if (view && view.n !== (products.length)) {
+    el.innerHTML += statTile("This view", pct(view.avgMargin),
+      marginClass(view.avgMargin), `${view.n} product${view.n === 1 ? "" : "s"} shown`);
+  }
+}
+
 function render() {
   const rows = visibleRows();
+  renderStats(rows);
 
   document.getElementById("count").textContent =
     `${rows.length} of ${products.length} product${products.length === 1 ? "" : "s"}`;
@@ -391,6 +484,7 @@ function wireInlineEdit() {
 
         p[field] = next;                    // keep the local copy in step
         refreshDerived(tr, p);
+        renderStats(visibleRows());          // the summary moves with it
 
         const { margin } = profitOf(headline(p).price, headline(p).cost, p.shipping_cost);
         let msg = `${p.sku} ${field === "price" ? "price" : "cost"} set to ${money(next)}.`;
