@@ -15,6 +15,17 @@ function starRow(rating) {
   return s;
 }
 
+/* The reviews intro is editable in Admin → Site text. {count} is where
+   the review number goes. Anything the admin hasn't set falls back to
+   the wording written here. */
+function reviewIntro(count) {
+  const fallback =
+    "{count} manufacturer reviews, shown in full. They aren't our customers' words, " +
+    "but we'd rather show you real feedback than none at all.";
+  const tpl = (window.siteText ? window.siteText("pdp_reviews_intro", fallback) : fallback);
+  return tpl.replace(/\{count\}/g, Number(count || 0).toLocaleString());
+}
+
 function renderProductPage() {
   const id = qs("id");
   const p = findProduct(id);
@@ -111,34 +122,35 @@ function renderProductPage() {
         ${sup ? `
         <div class="supplier-box">
           <div class="supplier-head">
-            <strong>What buyers are saying</strong>
+            <strong data-text="pdp_reviews_title">What buyers are saying</strong>
             <span class="supplier-score">${starRow(sup.rating)} ${sup.rating.toFixed(1)}</span>
           </div>
-          <p class="supplier-sub">
-            ${sup.reviews.toLocaleString()} supplier reviews from the <em>source listing</em> we order this product from —
-            not yet our own. We're a new store and haven't collected our own customer reviews here.
-          </p>
+          <p class="supplier-sub">${reviewIntro(sup.reviews)}</p>
           ${sup.quotes && sup.quotes.length ? `
           <div class="supplier-quotes">
             ${sup.quotes.map(q => `
               <div class="squote">
                 <p>"${q.text.replace(/"/g, "&quot;")}"</p>
-                <span class="squote-meta">${q.author ? q.author + " · " : ""}Supplier buyer${q.variant ? " · " + q.variant : ""}</span>
+                <span class="squote-meta">${q.author ? q.author + " · " : ""}<span data-text="pdp_quote_label">Manufacturer review</span>${q.variant ? " · " + q.variant : ""}</span>
               </div>`).join("")}
           </div>` : ""}
           ${sup.tags && sup.tags.length ? `
           <div class="supplier-tags">
             ${sup.tags.map(t => `<span class="stag">${t}</span>`).join("")}
           </div>
-          <p class="supplier-foot">Themes buyers mentioned most often, shown unedited — including the critical ones.</p>` : ""}
+          <p class="supplier-foot" data-text="pdp_reviews_footer">Themes buyers mentioned most often, shown unedited — including the critical ones.</p>` : ""}
         </div>` : ""}
 
         <div class="own-reviews">
-          <h3>Squishy Society reviews</h3>
-          <p>No reviews yet — we're new. Once you've received an order we'll email you and yours will show up here.</p>
+          <h3 data-text="pdp_own_title">Squishy Society reviews</h3>
+          <p data-text="pdp_own_body">No reviews yet — we're new. Once you've received an order we'll email you and yours will show up here.</p>
         </div>
       </div>
     </div>`;
+
+  /* This markup was built after site-text.js may already have resolved,
+     so apply any admin wording to it now. */
+  if (window.applySiteText) window.applySiteText(body);
 
   /* gallery thumbs */
   body.querySelectorAll(".pdp-thumb").forEach(btn => {

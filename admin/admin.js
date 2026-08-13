@@ -109,6 +109,7 @@ const NAV = [
   { href: "products.html", label: "Products" },
   { href: "drops.html",    label: "Just landed" },
   { href: "research.html", label: "Research" },
+  { href: "sitetext.html", label: "Site text" },
   { href: "import.html",   label: "Add from URL" },
   { href: "settings.html", label: "Settings" }
 ];

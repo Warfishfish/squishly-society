@@ -30,9 +30,9 @@
 
 <section class="hero">
   <div class="container">
-    <span class="hero-badge">✨ This week's drop is live</span>
+    <span class="hero-badge" data-text="home_hero_badge">✨ This week's drop is live</span>
     <h1>New squishies.<br>Every Friday.</h1>
-    <p>We hunt down whatever's blowing up, squeeze-test it, and drop a fresh batch every week. Mochi squishies, prism cubes and squish keychains — shipped Australia-wide.</p>
+    <p data-text="home_hero_body">We hunt down whatever's blowing up, squeeze-test it, and drop a fresh batch every week. Mochi squishies, prism cubes and squish keychains — shipped Australia-wide.</p>
     <a href="#drops" class="btn">See this week's drop</a>
     <a href="#mystery" class="btn secondary" style="margin-left:10px;">Mystery boxes</a>
   </div>
@@ -49,8 +49,8 @@
 <section class="section" id="browse">
   <div class="container">
     <div class="section-head">
-      <h2>Browse by type</h2>
-      <p>Jump straight to whatever kind of squish you're after.</p>
+      <h2 data-text="home_browse_title">Browse by type</h2>
+      <p data-text="home_browse_body">Jump straight to whatever kind of squish you're after.</p>
     </div>
     <div class="tile-row" id="tile-row"></div>
   </div>
@@ -60,8 +60,8 @@
 <section class="section drop-section" id="drops">
   <div class="container">
     <div class="section-head">
-      <h2>Just landed</h2>
-      <p>The newest additions to the shop. These move fastest.</p>
+      <h2 data-text="home_drops_title">Just landed</h2>
+      <p data-text="home_drops_body">The newest additions to the shop. These move fastest.</p>
     </div>
     <div class="product-grid" id="drop-grid"></div>
   </div>
@@ -82,8 +82,8 @@
 <section class="section" id="shop">
   <div class="container">
     <div class="section-head">
-      <h2>Shop everything</h2>
-      <p>Every squishy we currently stock.</p>
+      <h2 data-text="home_shop_title">Shop everything</h2>
+      <p data-text="home_shop_body">Every squishy we currently stock.</p>
     </div>
     <div class="filters" id="filters"></div>
     <div class="shop-bar">
@@ -105,29 +105,29 @@
 <section class="section" id="why-us">
   <div class="container">
     <div class="section-head">
-      <h2>How this works</h2>
-      <p>We're a small Australian store, and we'd rather be upfront about it.</p>
+      <h2 data-text="home_how_title">How this works</h2>
+      <p data-text="home_how_body">We're a small Australian store, and we'd rather be upfront about it.</p>
     </div>
     <div class="features">
       <div class="feature-card">
         <div class="emoji">🔎</div>
-        <h3>Hand-picked, not mass-listed</h3>
-        <p>We only stock squishes we'd keep on our own desk. Every one is tested for feel, rebound and finish before it earns a spot.</p>
+        <h3 data-text="home_card1_title">Hand-picked, not mass-listed</h3>
+        <p data-text="home_card1_body">We only stock squishes we'd keep on our own desk. Every one is tested for feel, rebound and finish before it earns a spot.</p>
       </div>
       <div class="feature-card">
         <div class="emoji">✈️</div>
-        <h3>Worth the wait</h3>
-        <p>Shipping is international, so allow 12–25 business days. That trade-off is what keeps our prices where they are.</p>
+        <h3 data-text="home_card2_title">Worth the wait</h3>
+        <p data-text="home_card2_body">Shipping is international, so allow 12–25 business days. That trade-off is what keeps our prices where they are.</p>
       </div>
       <div class="feature-card">
         <div class="emoji">💬</div>
-        <h3>A real person replies</h3>
-        <p>Message us and you get an actual human, usually the same day.</p>
+        <h3 data-text="home_card3_title">A real person replies</h3>
+        <p data-text="home_card3_body">Message us and you get an actual human, usually the same day.</p>
       </div>
       <div class="feature-card">
         <div class="emoji">↩️</div>
-        <h3>Straightforward returns</h3>
-        <p>Faulty or not as described? Sorted, per Australian Consumer Law. 14 days for change of mind.</p>
+        <h3 data-text="home_card4_title">Straightforward returns</h3>
+        <p data-text="home_card4_body">Faulty or not as described? Sorted, per Australian Consumer Law. 14 days for change of mind.</p>
       </div>
     </div>
   </div>
@@ -136,8 +136,8 @@
 <section class="section">
   <div class="container">
     <div class="newsletter">
-      <h2>Get the drop before it sells out</h2>
-      <p>One email each Friday when the new batch lands. Nothing else.</p>
+      <h2 data-text="home_news_title">Get the drop before it sells out</h2>
+      <p data-text="home_news_body">One email each Friday when the new batch lands. Nothing else.</p>
       <form class="newsletter-form" id="newsletter-form">
         <input type="email" placeholder="you@email.com" required>
         <button type="submit" class="btn">Notify me</button>
@@ -182,6 +182,7 @@
 
 <script src="products.js"></script>
 <script src="product-data.js"></script>
+<script src="site-text.js"></script>
 <script src="data-source.js"></script>
 <script src="cart.js"></script>
 <script src="app.js"></script>

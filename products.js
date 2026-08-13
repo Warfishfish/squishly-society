@@ -216,7 +216,7 @@ var CATEGORY_LABELS = {
   food: "Food Squish",
   giant: "Giants",
   dumpling: "Dumplings",
-  animal: "Animals",
+  misc: "Misc",
   mystery: "Mystery Boxes",
   keychain: "Keychain",
   prism: "Prism Cubes"

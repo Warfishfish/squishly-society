@@ -226,6 +226,17 @@ document.getElementById("form-area").innerHTML = `
       <textarea id="f-tags" placeholder="One per line">${esc((product.source_tags || []).join("\n"))}</textarea>
       <div class="hint">One per line. These show as the little pills on the product page.</div>
     </div>
+
+    <div class="field" style="margin-top:8px;">
+      <label>Review quotes</label>
+      <div class="hint" style="margin:-4px 0 10px;">
+        Copy real review text from the supplier's listing and paste it here — two or three is plenty.
+        Never write your own: made-up reviews are illegal under Australian Consumer Law.
+        Leave the name blank if the reviewer didn't give one.
+      </div>
+      <div id="quote-list"></div>
+      <button class="btn-ghost btn-sm" id="add-quote" type="button">+ Add quote</button>
+    </div>
   </div>
 
   <div class="card">
@@ -283,6 +294,30 @@ document.getElementById("add-variant").addEventListener("click", () => {
   variantRow();
   recalcAll();
 });
+
+/* ---------- review quotes editor ----------
+   Stored as jsonb [{text, author, variant}]. Only text is required —
+   an empty row is dropped on save rather than saved as a blank quote. */
+
+const qList = document.getElementById("quote-list");
+
+function quoteRow(q = { text: "", author: "", variant: "" }) {
+  const row = document.createElement("div");
+  row.className = "variant-row";
+  row.style.gridTemplateColumns = "1fr 130px 130px auto";
+  row.innerHTML = `
+    <input type="text" class="q-text" placeholder="What the reviewer wrote" value="${esc(q.text || "")}">
+    <input type="text" class="q-author" placeholder="Name (optional)" value="${esc(q.author || "")}">
+    <input type="text" class="q-variant" placeholder="Variant (optional)" value="${esc(q.variant || "")}">
+    <button class="btn-ghost btn-sm q-remove" type="button">Remove</button>
+  `;
+  row.querySelector(".q-remove").addEventListener("click", () => row.remove());
+  qList.appendChild(row);
+  return row;
+}
+
+(product.source_quotes || []).forEach(quoteRow);
+document.getElementById("add-quote").addEventListener("click", () => quoteRow());
 
 /* ---------- live profit ---------- */
 
@@ -357,6 +392,13 @@ document.getElementById("save").addEventListener("click", async () => {
     source_reviews: document.getElementById("f-reviews").value === "" ? null : Number(document.getElementById("f-reviews").value),
     source_orders: document.getElementById("f-orders").value.trim() || null,
     source_tags: linesToArray("f-tags"),
+    source_quotes: [...qList.querySelectorAll(".variant-row")]
+      .map(row => ({
+        text: row.querySelector(".q-text").value.trim(),
+        author: row.querySelector(".q-author").value.trim(),
+        variant: row.querySelector(".q-variant").value.trim()
+      }))
+      .filter(q => q.text),
     is_new_drop: document.getElementById("f-newdrop").checked,
     is_mystery: document.getElementById("f-mystery").checked
   };
