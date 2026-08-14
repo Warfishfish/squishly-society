@@ -76,17 +76,22 @@
   /**
    * Builds the Snipcart buy button for a product.
    *
-   * data-item-url is what Snipcart fetches to verify the price. It must
-   * point at a page where the same button, with the same price, can be
-   * found — so it carries ?snipcart=1 too.
+   * data-item-url is what Snipcart fetches to verify the price. It points
+   * at /snipcart-validate — a server-side helper that returns the current
+   * price straight from the database (see functions/snipcart-validate.js).
+   * That endpoint renders the SAME buttons this function does, so the id
+   * and price Snipcart finds there match the cart line exactly.
+   *
+   * A variant travels as its own cart line, keyed "<sku>|<label>", with
+   * the variant's absolute price — NOT as a custom field. The validation
+   * helper builds its ids the same way, so the two always agree.
    *
    * @param {object} p        product record
    * @param {number} price    the price actually being charged
    * @param {string} variant  selected option label, or null
    */
   window.snipcartButton = function (p, price, variant) {
-    var url = location.origin + location.pathname.replace(/[^/]*$/, "") +
-      "product.html?id=" + encodeURIComponent(p.id) + "&snipcart=1";
+    var url = location.origin + "/snipcart-validate?id=" + encodeURIComponent(p.id);
 
     var esc = function (s) {
       return String(s == null ? "" : s)
@@ -94,23 +99,17 @@
         .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     };
 
-    // Snipcart treats id + custom fields as the cart line identity, so a
-    // variant has to travel as a custom field rather than a separate id.
-    var custom = variant
-      ? ' data-item-custom1-name="Option"' +
-        ' data-item-custom1-options="' + esc(variant) + '"' +
-        ' data-item-custom1-value="' + esc(variant) + '"'
-      : "";
+    var itemId = variant ? p.id + "|" + variant : p.id;
+    var itemName = variant ? p.name + " — " + variant : p.name;
 
     return '<button class="btn pdp-add snipcart-add-item"' +
-      ' data-item-id="' + esc(p.id) + '"' +
-      ' data-item-name="' + esc(p.name) + '"' +
+      ' data-item-id="' + esc(itemId) + '"' +
+      ' data-item-name="' + esc(itemName) + '"' +
       ' data-item-price="' + Number(price).toFixed(2) + '"' +
       ' data-item-url="' + esc(url) + '"' +
       ' data-item-description="' + esc((p.description || "").slice(0, 160)) + '"' +
       ' data-item-image="' + esc(p.image || "") + '"' +
       ' data-item-max-quantity="99"' +
-      custom +
       ' type="button">Buy with Snipcart (test)</button>';
   };
 })();
