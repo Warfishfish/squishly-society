@@ -89,8 +89,9 @@
    * @param {object} p        product record
    * @param {number} price    the price actually being charged
    * @param {string} variant  selected option label, or null
+   * @param {number} qty      quantity to add, defaults to 1
    */
-  window.snipcartButton = function (p, price, variant) {
+  window.snipcartButton = function (p, price, variant, qty) {
     var url = location.origin + "/snipcart-validate?id=" + encodeURIComponent(p.id);
 
     var esc = function (s) {
@@ -109,6 +110,7 @@
       ' data-item-url="' + esc(url) + '"' +
       ' data-item-description="' + esc((p.description || "").slice(0, 160)) + '"' +
       ' data-item-image="' + esc(p.image || "") + '"' +
+      ' data-item-quantity="' + (Number(qty) || 1) + '"' +
       ' data-item-max-quantity="99"' +
       ' type="button">Buy with Snipcart (test)</button>';
   };

@@ -199,8 +199,9 @@ function renderProductPage() {
   const snipSlot = document.getElementById("snipcart-slot");
   if (snipSlot && window.SNIPCART_TEST_MODE && window.snipcartButton) {
     const drawSnipcart = () => {
+      const q = Math.max(1, Math.min(99, parseInt(qtyInput.value, 10) || 1));
       snipSlot.innerHTML =
-        window.snipcartButton(p, unitPrice(p.id, selected), selected) +
+        window.snipcartButton(p, unitPrice(p.id, selected), selected, q) +
         `<p class="hint" style="margin-top:6px;">
            Test mode — this button is only visible with <code>?snipcart=1</code> in the address.
          </p>`;
@@ -208,6 +209,9 @@ function renderProductPage() {
     drawSnipcart();
     document.querySelectorAll(".opt-btn").forEach(b =>
       b.addEventListener("click", () => setTimeout(drawSnipcart, 0)));
+    document.getElementById("qty-minus").addEventListener("click", drawSnipcart);
+    document.getElementById("qty-plus").addEventListener("click", drawSnipcart);
+    qtyInput.addEventListener("input", drawSnipcart);
   }
 
   renderRelated(p);
