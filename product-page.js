@@ -110,6 +110,7 @@ function renderProductPage() {
           </div>
 
           <button type="submit" class="btn pdp-add">Add to cart</button>
+          <div id="snipcart-slot"></div>
         </form>
 
         <ul class="pdp-facts">
@@ -191,6 +192,23 @@ function renderProductPage() {
     const q = Math.max(1, Math.min(99, parseInt(qtyInput.value, 10) || 1));
     addToCart(p.id, selected, q);
   });
+
+  /* Snipcart test button — only rendered when ?snipcart=1 is in the URL,
+     so customers never see it. Rebuilt whenever the variant changes,
+     because the price travels on the button itself. */
+  const snipSlot = document.getElementById("snipcart-slot");
+  if (snipSlot && window.SNIPCART_TEST_MODE && window.snipcartButton) {
+    const drawSnipcart = () => {
+      snipSlot.innerHTML =
+        window.snipcartButton(p, unitPrice(p.id, selected), selected) +
+        `<p class="hint" style="margin-top:6px;">
+           Test mode — this button is only visible with <code>?snipcart=1</code> in the address.
+         </p>`;
+    };
+    drawSnipcart();
+    document.querySelectorAll(".opt-btn").forEach(b =>
+      b.addEventListener("click", () => setTimeout(drawSnipcart, 0)));
+  }
 
   renderRelated(p);
 }
