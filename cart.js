@@ -50,9 +50,14 @@ function hasVariantPricing(id) {
   return !!(d && d.options && d.options.prices && Object.keys(d.options.prices).length > 1);
 }
 
-/* Shown on product pages. Snipcart works out real shipping at
-   checkout; this is the promise made in the site copy. */
-const FREE_SHIPPING_OVER = 75;
+/* The order-level offer advertised in the site copy.
+   IMPORTANT: these constants are only what the SITE SAYS. The discount
+   that actually comes off the total is a rule in the Snipcart dashboard
+   (Discounts → rate 10%, applies when subtotal is at least $50). If you
+   change the numbers here, change the Snipcart rule to match, or the
+   shop will promise something checkout does not deliver. */
+const DISCOUNT_PERCENT = 10;
+const DISCOUNT_OVER = 50;
 
 /* ---------- header cart button ---------- */
 

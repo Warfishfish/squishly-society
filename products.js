@@ -68,7 +68,7 @@ var PRODUCTS = [
     image: "images/mochi-glow-pack.png",
     sourceRating: 4.6,
     sourceOrders: "3,000+",
-    description: "A bucket of assorted mini mochi-style animal squishies that glow in the dark — great as a party favour bundle or pick-and-mix item. Free shipping on this listing. Comes in four pack sizes, priced differently."
+    description: "A bucket of assorted mini mochi-style animal squishies that glow in the dark — great as a party favour bundle or pick-and-mix item. Comes in four pack sizes, priced differently."
   },
 
   {
@@ -82,7 +82,7 @@ var PRODUCTS = [
     image: "https://ae-pic-a1.aliexpress-media.com/kf/Sa976459fb7724bf1bca6e153a425a8ebg.png",
     sourceRating: 4.9,
     sourceOrders: "700+",
-    description: "A soft plush dumpling-shaped keychain with a stitched-on smiley face — cute, pillowy, and instantly recognisable. Free shipping on this listing. Sold in packs of 1 to 5, priced per pack."
+    description: "A soft plush dumpling-shaped keychain with a stitched-on smiley face — cute, pillowy, and instantly recognisable. Sold in packs of 1 to 5, priced per pack."
   },
 
   {
@@ -132,7 +132,7 @@ var PRODUCTS = [
     image: "https://ae-pic-a1.aliexpress-media.com/kf/Sa85a5ce826ca49a2b109c61aa8b614edt.png",
     sourceRating: 4.8,
     sourceOrders: "2,000+",
-    description: "Pastel mechanical-style keycaps on a keyring, purely for clicking. Comes as a single cube, a row of four, a cross of five, or a full 3x3 grid of nine. Free shipping on this listing."
+    description: "Pastel mechanical-style keycaps on a keyring, purely for clicking. Comes as a single cube, a row of four, a cross of five, or a full 3x3 grid of nine. "
   },
 
   {
