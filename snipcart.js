@@ -45,10 +45,22 @@
     publicApiKey: PUBLIC_API_KEY,
     loadStrategy: "on-user-interaction",
     currency: CURRENCY,
-    version: "3.0",
-    // Overrides the checkout address form so "Unit Number" (address2)
-    // is optional instead of required — see snipcart-templates.html.
-    templatesUrl: "/snipcart-templates.html"
+    version: "3.0"
+
+    /* NOTE — do not re-enable templatesUrl without testing checkout.
+       An attempt to override the address form (to make the "Unit
+       Number" field optional) broke the Country and State dropdowns:
+       overriding `address-fields` stops Snipcart populating the
+       country list, leaving an empty select nobody can choose from.
+       Both <snipcart-typeahead> and <snipcart-select> failed — the
+       first rendered as a plain input ("Field country was registered
+       as a Select but is now used as a Input"), the second rendered
+       a select with zero options.
+       A required Unit Number is mild friction; an unusable Country
+       field is a checkout that takes no orders at all. Reverted
+       deliberately. The fix belongs with Snipcart support, who have
+       been asked to make address2 optional server-side.
+       snipcart-templates.html is kept, unreferenced, for that day. */
   };
 
   var head = document.getElementsByTagName("head")[0];

@@ -52,7 +52,7 @@ function hasVariantPricing(id) {
 
 /* Shown on product pages. Snipcart works out real shipping at
    checkout; this is the promise made in the site copy. */
-const FREE_SHIPPING_OVER = 60;
+const FREE_SHIPPING_OVER = 75;
 
 /* ---------- header cart button ---------- */
 
