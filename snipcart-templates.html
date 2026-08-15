@@ -1,0 +1,64 @@
+<!-- ===========================================================
+     Squishy Society — Snipcart checkout template overrides
+     -----------------------------------------------------------
+     Snipcart builds its checkout from named templates. Providing
+     this file (via templatesUrl in snipcart.js) lets us replace
+     the default address form with our own.
+
+     The ONLY reason this exists: Snipcart's default Australian
+     address form marks "Unit Number" (address2) as REQUIRED,
+     which blocks the many customers who live in houses. This
+     template is the default set of address fields with the
+     `required` attribute REMOVED from address2 — nothing else
+     changes. Every other field stays required exactly as before.
+
+     Snipcart binds each field by its `name` attribute, so the
+     field names here must stay exactly: address1, address2, city,
+     country, province, postalCode. Name and email are handled by
+     a separate Snipcart component and are untouched.
+     =========================================================== -->
+<div id="snipcart-templates">
+  <address-fields>
+    <div class="snipcart-form__set">
+
+      <div class="snipcart-form__field">
+        <snipcart-label for="address1">Street number and name</snipcart-label>
+        <snipcart-input name="address1" required></snipcart-input>
+        <snipcart-field-error name="address1"></snipcart-field-error>
+      </div>
+
+      <!-- Unit Number — NOT required. This single omission is the
+           whole point of the file. -->
+      <div class="snipcart-form__field">
+        <snipcart-label for="address2">Unit number (optional)</snipcart-label>
+        <snipcart-input name="address2"></snipcart-input>
+        <snipcart-field-error name="address2"></snipcart-field-error>
+      </div>
+
+      <div class="snipcart-form__field">
+        <snipcart-label for="city">Suburb</snipcart-label>
+        <snipcart-input name="city" required></snipcart-input>
+        <snipcart-field-error name="city"></snipcart-field-error>
+      </div>
+
+      <div class="snipcart-form__field">
+        <snipcart-label for="country">Country</snipcart-label>
+        <snipcart-typeahead name="country" required></snipcart-typeahead>
+        <snipcart-field-error name="country"></snipcart-field-error>
+      </div>
+
+      <div class="snipcart-form__field">
+        <snipcart-label for="province">State</snipcart-label>
+        <snipcart-input name="province" required></snipcart-input>
+        <snipcart-field-error name="province"></snipcart-field-error>
+      </div>
+
+      <div class="snipcart-form__field">
+        <snipcart-label for="postalCode">Postcode</snipcart-label>
+        <snipcart-input name="postalCode" required></snipcart-input>
+        <snipcart-field-error name="postalCode"></snipcart-field-error>
+      </div>
+
+    </div>
+  </address-fields>
+</div>

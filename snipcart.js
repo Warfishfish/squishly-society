@@ -48,7 +48,10 @@
     publicApiKey: PUBLIC_API_KEY,
     loadStrategy: "on-user-interaction",
     currency: CURRENCY,
-    version: "3.0"
+    version: "3.0",
+    // Overrides the checkout address form so "Unit Number" (address2)
+    // is optional instead of required — see snipcart-templates.html.
+    templatesUrl: "/snipcart-templates.html"
   };
 
   var head = document.getElementsByTagName("head")[0];
@@ -89,9 +92,8 @@
    * @param {object} p        product record
    * @param {number} price    the price actually being charged
    * @param {string} variant  selected option label, or null
-   * @param {number} qty      quantity to add, defaults to 1
    */
-  window.snipcartButton = function (p, price, variant, qty) {
+  window.snipcartButton = function (p, price, variant) {
     var url = location.origin + "/snipcart-validate?id=" + encodeURIComponent(p.id);
 
     var esc = function (s) {
@@ -110,7 +112,6 @@
       ' data-item-url="' + esc(url) + '"' +
       ' data-item-description="' + esc((p.description || "").slice(0, 160)) + '"' +
       ' data-item-image="' + esc(p.image || "") + '"' +
-      ' data-item-quantity="' + (Number(qty) || 1) + '"' +
       ' data-item-max-quantity="99"' +
       ' type="button">Buy with Snipcart (test)</button>';
   };
