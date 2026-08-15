@@ -53,11 +53,11 @@ function hasVariantPricing(id) {
 /* The order-level offer advertised in the site copy.
    IMPORTANT: these constants are only what the SITE SAYS. The discount
    that actually comes off the total is a rule in the Snipcart dashboard
-   (Discounts → rate 10%, applies when subtotal is at least $50). If you
+   (Discounts → rate 10%, applies when subtotal is at least $75). If you
    change the numbers here, change the Snipcart rule to match, or the
    shop will promise something checkout does not deliver. */
 const DISCOUNT_PERCENT = 10;
-const DISCOUNT_OVER = 50;
+const DISCOUNT_OVER = 75;
 
 /* ---------- header cart button ---------- */
 

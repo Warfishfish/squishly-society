@@ -113,7 +113,7 @@ function renderProductPage() {
         </form>
 
         <ul class="pdp-facts">
-          <li>🏷️ 10% off orders over $50 · ships Australia-wide</li>
+          <li>🏷️ 10% off orders over $75 · ships Australia-wide</li>
           <li>🕑 Dispatched in 1–3 business days, then 12–25 business days delivery</li>
           <li>↩️ 14-day change-of-mind returns · <a href="shipping-returns.html">full policy</a></li>
           <li>💬 Questions? <a href="contact.html">Send us a message</a></li>
