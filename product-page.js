@@ -109,8 +109,7 @@ function renderProductPage() {
             </div>
           </div>
 
-          <button type="submit" class="btn pdp-add">Add to cart</button>
-          <div id="snipcart-slot"></div>
+          <button type="button" class="btn pdp-add" id="pdp-add">Add to cart</button>
         </form>
 
         <ul class="pdp-facts">
@@ -187,31 +186,24 @@ function renderProductPage() {
     qtyInput.value = Math.min(99, (parseInt(qtyInput.value, 10) || 1) + 1);
   });
 
-  document.getElementById("pdp-form").addEventListener("submit", e => {
-    e.preventDefault();
+  /* The Add to cart button IS the Snipcart button. Its data attributes
+     carry the price and quantity, so they have to be refreshed whenever
+     the shopper changes variant or quantity — Snipcart reads them at the
+     moment of the click. */
+  const addBtn = document.getElementById("pdp-add");
+  const syncAddBtn = () => {
+    if (!addBtn || !window.snipcartBindButton) return;
     const q = Math.max(1, Math.min(99, parseInt(qtyInput.value, 10) || 1));
-    addToCart(p.id, selected, q);
-  });
+    window.snipcartBindButton(addBtn, p, unitPrice(p.id, selected), selected, q);
+  };
+  syncAddBtn();
 
-  /* Snipcart test button — only rendered when ?snipcart=1 is in the URL,
-     so customers never see it. Rebuilt whenever the variant changes,
-     because the price travels on the button itself. */
-  const snipSlot = document.getElementById("snipcart-slot");
-  if (snipSlot && window.SNIPCART_TEST_MODE && window.snipcartButton) {
-    const drawSnipcart = () => {
-      const q = Math.max(1, Math.min(99, parseInt(qtyInput.value, 10) || 1));
-      snipSlot.innerHTML =
-        window.snipcartButton(p, unitPrice(p.id, selected), selected, q) +
-        `<p class="hint" style="margin-top:6px;">
-           Test mode — this button is only visible with <code>?snipcart=1</code> in the address.
-         </p>`;
-    };
-    drawSnipcart();
-    document.querySelectorAll(".opt-btn").forEach(b =>
-      b.addEventListener("click", () => setTimeout(drawSnipcart, 0)));
-    document.getElementById("qty-minus").addEventListener("click", drawSnipcart);
-    document.getElementById("qty-plus").addEventListener("click", drawSnipcart);
-    qtyInput.addEventListener("input", drawSnipcart);
+  qtyInput.addEventListener("input", syncAddBtn);
+  document.getElementById("qty-minus").addEventListener("click", () => setTimeout(syncAddBtn, 0));
+  document.getElementById("qty-plus").addEventListener("click", () => setTimeout(syncAddBtn, 0));
+  if (optRow) {
+    optRow.querySelectorAll(".opt-btn").forEach(b =>
+      b.addEventListener("click", () => setTimeout(syncAddBtn, 0)));
   }
 
   renderRelated(p);
