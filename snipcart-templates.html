@@ -41,15 +41,22 @@
         <snipcart-field-error name="city"></snipcart-field-error>
       </div>
 
+      <!-- Country and State MUST stay <snipcart-select>. Snipcart
+           registers them internally as selects and stores the ISO
+           code (AU / VIC), not the display name. Rendering either as
+           a plain input silently breaks the checkout: the form stops
+           advancing with no error, and the console warns "Field
+           country was registered as a Select but is now used as a
+           Input". Learned the hard way — do not change these. -->
       <div class="snipcart-form__field">
         <snipcart-label for="country">Country</snipcart-label>
-        <snipcart-typeahead name="country" required></snipcart-typeahead>
+        <snipcart-select name="country" required></snipcart-select>
         <snipcart-field-error name="country"></snipcart-field-error>
       </div>
 
       <div class="snipcart-form__field">
         <snipcart-label for="province">State</snipcart-label>
-        <snipcart-input name="province" required></snipcart-input>
+        <snipcart-select name="province" required></snipcart-select>
         <snipcart-field-error name="province"></snipcart-field-error>
       </div>
 
