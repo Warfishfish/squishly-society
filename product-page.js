@@ -186,24 +186,14 @@ function renderProductPage() {
     qtyInput.value = Math.min(99, (parseInt(qtyInput.value, 10) || 1) + 1);
   });
 
-  /* The Add to cart button IS the Snipcart button. Its data attributes
-     carry the price and quantity, so they have to be refreshed whenever
-     the shopper changes variant or quantity — Snipcart reads them at the
-     moment of the click. */
+  /* Add to cart. Only the choice is recorded — the price is settled
+     server-side at checkout (functions/create-checkout.js). */
   const addBtn = document.getElementById("pdp-add");
-  const syncAddBtn = () => {
-    if (!addBtn || !window.snipcartBindButton) return;
-    const q = Math.max(1, Math.min(99, parseInt(qtyInput.value, 10) || 1));
-    window.snipcartBindButton(addBtn, p, unitPrice(p.id, selected), selected, q);
-  };
-  syncAddBtn();
-
-  qtyInput.addEventListener("input", syncAddBtn);
-  document.getElementById("qty-minus").addEventListener("click", () => setTimeout(syncAddBtn, 0));
-  document.getElementById("qty-plus").addEventListener("click", () => setTimeout(syncAddBtn, 0));
-  if (optRow) {
-    optRow.querySelectorAll(".opt-btn").forEach(b =>
-      b.addEventListener("click", () => setTimeout(syncAddBtn, 0)));
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      const q = Math.max(1, Math.min(99, parseInt(qtyInput.value, 10) || 1));
+      addToCart(p.id, selected, q);
+    });
   }
 
   renderRelated(p);

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Thanks for your order — Squishy Society</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo">🧸 Squishy Society<span class="dot">.</span></a>
+    <nav class="nav-links">
+      <a href="index.html#shop">Shop</a>
+      <a href="about.html">About</a>
+      <a href="shipping-returns.html">Shipping &amp; Returns</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="index.html#shop" class="btn secondary">Keep shopping</a>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container" style="max-width:640px; text-align:center;">
+    <div style="font-size:3rem; line-height:1;">🎉</div>
+    <h1>Thanks for your order</h1>
+    <p style="font-size:1.05rem;">
+      Your payment went through and we've got it. A receipt is on its way to your
+      email from Stripe, our payment provider.
+    </p>
+
+    <div class="note-box" style="text-align:left; margin:28px 0;">
+      <h2 style="margin-top:0;">What happens next</h2>
+      <ul style="margin:0; padding-left:20px; line-height:1.9;">
+        <li>We pack and dispatch within <strong>1–3 business days</strong>.</li>
+        <li>Delivery then takes <strong>12–25 business days</strong> — our squishes
+            ship internationally, which is what keeps the prices where they are.</li>
+        <li>We'll email you when it's on its way.</li>
+      </ul>
+    </div>
+
+    <p>
+      Something not right, or need to change your address?
+      <a href="contact.html">Send us a message</a> — a real person reads them,
+      usually the same day.
+    </p>
+
+    <p style="margin-top:28px;">
+      <a href="index.html#shop" class="btn">Back to the shop</a>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>© <span id="year"></span> Squishy Society<span data-hide-empty> · ABN <span data-text="site_abn"></span></span></p>
+  </div>
+</footer>
+
+<script>
+  // The cart is paid for — clear it so it doesn't follow them back to the shop.
+  try { localStorage.removeItem("squishy_cart_v1"); } catch (e) {}
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<script src="site-text.js"></script>
+
+</body>
+</html>
